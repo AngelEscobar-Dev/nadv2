@@ -1,3 +1,8 @@
+# ── Herramientas de AI / configuración local ──────────────────────────────────
+.agents/
+.claude/
+skills-lock.json
+
 # ── Dependencias ──────────────────────────────────────────────────────────────
 node_modules/
 

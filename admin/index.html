@@ -1,0 +1,736 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>NAD Admin - Panel de Control</title>
+<link rel="icon" type="image/png" href="/nad.png">
+<style>
+@font-face{font-family:"MADE TOMMY";src:url("/tipografia/MADE TOMMY Regular_PERSONAL USE.otf") format("opentype");font-weight:400}
+@font-face{font-family:"MADE TOMMY";src:url("/tipografia/MADE TOMMY Bold_PERSONAL USE.otf") format("opentype");font-weight:700}
+:root{--primary:#BF0413;--primary-dark:#73030D;--accent:#F2C029;--bg:#F2DDB6;--bg-dark:#1a0305;--sw:268px;--text-muted:#6b7280}
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:"Outfit",sans-serif;background:#f4f5f7;color:#111827;display:flex;min-height:100vh}
+.sidebar{width:var(--sw);background:linear-gradient(180deg,var(--primary-dark),var(--bg-dark));color:var(--bg);display:flex;flex-direction:column;position:fixed;top:0;left:0;bottom:0;z-index:100;box-shadow:4px 0 20px rgba(0,0,0,.15);overflow-y:auto}
+.sb-brand{padding:1.4rem 1.5rem;border-bottom:1px solid rgba(242,221,182,.12);display:flex;align-items:center;gap:.8rem;flex-shrink:0}
+.sb-brand img{height:36px;background:var(--bg);padding:3px 6px;border-radius:8px;object-fit:contain}
+.sb-bt{font-size:.92rem;font-weight:700;line-height:1.2}.sb-bs{font-size:.7rem;opacity:.6}
+.sb-nav{flex:1;padding:.7rem 0 1rem}
+.ngl{padding:.9rem 1.5rem .35rem;font-size:.63rem;font-weight:800;letter-spacing:.1em;text-transform:uppercase;color:rgba(242,221,182,.35)}
+.ni{display:flex;align-items:center;gap:.8rem;padding:.72rem 1.5rem;cursor:pointer;transition:all .18s;font-size:.875rem;font-weight:500;color:rgba(242,221,182,.72);border-left:3px solid transparent}
+.ni:hover,.ni.active{background:rgba(242,221,182,.09);color:#fff;border-left-color:var(--accent)}
+.ni svg{width:17px;height:17px;flex-shrink:0}.ni .ne{font-size:1rem;width:17px;text-align:center}
+.sb-foot{padding:1rem 1.5rem;border-top:1px solid rgba(242,221,182,.12);flex-shrink:0}
+.logout-btn{display:flex;align-items:center;gap:.6rem;color:rgba(242,221,182,.55);font-size:.85rem;cursor:pointer;text-decoration:none;transition:color .2s}
+.logout-btn:hover{color:#fff}
+.main{margin-left:var(--sw);flex:1;display:flex;flex-direction:column;min-width:0}
+.topbar{background:#fff;padding:1rem 2.5rem;display:flex;align-items:center;justify-content:space-between;box-shadow:0 1px 4px rgba(0,0,0,.06);position:sticky;top:0;z-index:50}
+.topbar h1{font-size:1.3rem;color:var(--primary-dark);font-weight:700}
+.ta{display:flex;align-items:center;gap:1rem}
+.bvs{display:inline-flex;align-items:center;gap:.4rem;font-size:.85rem;font-weight:600;text-decoration:none;color:var(--primary);background:rgba(191,4,19,.08);padding:.45rem 1rem;border-radius:50px;transition:all .2s}
+.bvs:hover{background:rgba(191,4,19,.15)}
+.tu{display:flex;align-items:center;gap:.6rem;font-size:.9rem;color:#4b5563}
+.ud{width:34px;height:34px;border-radius:50%;background:linear-gradient(135deg,var(--primary),var(--primary-dark));display:flex;align-items:center;justify-content:center;color:#fff;font-weight:700;font-size:.85rem}
+.content{padding:2rem 2.5rem;flex:1}
+.view{display:none}.view.active{display:block;animation:fadeIn .22s ease-out}
+@keyframes fadeIn{from{opacity:0;transform:translateY(5px)}to{opacity:1;transform:translateY(0)}}
+.smh{margin-bottom:1.5rem;padding-bottom:1.2rem;border-bottom:2px solid #f0f0f0;display:flex;align-items:center;gap:.8rem}
+.smh .icon{width:44px;height:44px;background:linear-gradient(135deg,var(--primary),var(--primary-dark));border-radius:12px;display:flex;align-items:center;justify-content:center;font-size:1.3rem;flex-shrink:0}
+.smh h2{font-size:1.45rem;color:var(--primary-dark);font-weight:800;line-height:1.2}
+.smh p{font-size:.88rem;color:var(--text-muted);margin-top:.15rem}
+.mtabs{display:flex;gap:.4rem;border-bottom:2px solid #e5e7eb;margin-bottom:1.5rem;overflow-x:auto;padding-bottom:2px}
+.mtb{padding:.65rem 1.2rem;font-family:"Outfit",sans-serif;font-size:.9rem;font-weight:600;background:none;border:none;cursor:pointer;color:var(--text-muted);border-bottom:3px solid transparent;margin-bottom:-2px;transition:all .2s;white-space:nowrap}
+.mtb:hover{color:var(--primary-dark)}.mtb.active{color:var(--primary);border-bottom-color:var(--primary)}
+.mtp{display:none}.mtp.active{display:block;animation:fadeIn .2s ease-out}
+.sr{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:1.2rem;margin-bottom:2rem}
+.sc{background:#fff;border-radius:14px;padding:1.3rem 1.5rem;box-shadow:0 2px 10px rgba(0,0,0,.04);border:1px solid #f0f0f0}
+.sc .num{font-size:2.2rem;font-weight:800;color:var(--primary-dark);line-height:1.1}
+.sc .lbl{font-size:.82rem;color:var(--text-muted);margin-top:.4rem;font-weight:500}
+.tw{background:#fff;border-radius:14px;box-shadow:0 2px 10px rgba(0,0,0,.04);border:1px solid #f0f0f0;overflow:hidden}
+.th{padding:1.2rem 1.5rem;display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid #f3f4f6;flex-wrap:wrap;gap:1rem}
+.th h2{font-size:1.1rem;color:var(--primary-dark);font-weight:700}
+table{width:100%;border-collapse:collapse}
+thead th{background:#f9fafb;padding:.9rem 1.2rem;text-align:left;font-size:.75rem;font-weight:700;text-transform:uppercase;letter-spacing:.05em;color:var(--text-muted)}
+tbody tr{border-top:1px solid #f3f4f6;transition:background .15s}tbody tr:hover{background:#fcfcfc}
+td{padding:1rem 1.2rem;font-size:.9rem;vertical-align:middle}
+td img{width:56px;height:42px;object-fit:cover;border-radius:6px;box-shadow:0 2px 6px rgba(0,0,0,.08)}
+.by{background:rgba(191,4,19,.08);color:var(--primary);border:1px solid rgba(191,4,19,.18);padding:.2rem .65rem;border-radius:50px;font-size:.75rem;font-weight:700}
+.bf{padding:.25rem .75rem;border-radius:50px;font-size:.75rem;font-weight:700;cursor:pointer;display:inline-flex;align-items:center;gap:.3rem}
+.bf.if{background:#fef3c7;color:#b45309;border:1px solid #fcd34d}.bf.nf{background:#f3f4f6;color:#6b7280;border:1px solid #e5e7eb}
+.bv{padding:.25rem .75rem;border-radius:50px;font-size:.75rem;font-weight:700;cursor:pointer}
+.bv.on{background:#dcfce7;color:#15803d;border:1px solid #bbf7d0}.bv.off{background:#f3f4f6;color:#9ca3af;border:1px solid #e5e7eb}
+.acts{display:flex;gap:.5rem}
+.bi{width:32px;height:32px;border-radius:8px;border:none;cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:.85rem;transition:all .2s}
+.be{background:rgba(242,192,41,.18);color:#b45309}.be:hover{background:rgba(242,192,41,.35)}
+.bd{background:rgba(239,68,68,.12);color:#dc2626}.bd:hover{background:rgba(239,68,68,.22)}
+.btn{display:inline-flex;align-items:center;gap:.5rem;padding:.65rem 1.4rem;border-radius:50px;font-family:"Outfit",sans-serif;font-weight:600;font-size:.9rem;cursor:pointer;border:none;transition:all .2s}
+.bp{background:linear-gradient(135deg,var(--primary),var(--primary-dark));color:#fff;box-shadow:0 3px 10px rgba(115,3,13,.2)}
+.bp:hover{transform:translateY(-1px);box-shadow:0 6px 16px rgba(115,3,13,.35)}
+.bs{background:#f3f4f6;color:#374151}.bs:hover{background:#e5e7eb}
+.save-row{display:flex;justify-content:flex-end;margin-top:1.5rem;position:sticky;bottom:1.5rem;z-index:30}
+.fc{background:#fff;border-radius:14px;padding:1.6rem;box-shadow:0 2px 10px rgba(0,0,0,.04);border:1px solid #f0f0f0;margin-bottom:1.2rem}
+.fch{margin-bottom:1.1rem;padding-bottom:.8rem;border-bottom:1px solid #f3f4f6}
+.fch h3{font-size:1.05rem;color:var(--primary-dark);font-weight:700}
+.fch p{font-size:.82rem;color:var(--text-muted);margin-top:.2rem}
+.fg{display:grid;grid-template-columns:1fr 1fr;gap:1.1rem}
+.fgr{display:flex;flex-direction:column;gap:.4rem}
+.fgr.full{grid-column:1/-1}
+label{font-size:.78rem;font-weight:700;color:#4b5563;text-transform:uppercase;letter-spacing:.04em}
+input[type=text],input[type=number],input[type=password],textarea,select{padding:.72rem 1rem;border:1.5px solid #d1d5db;border-radius:10px;font-family:"Inter",sans-serif;font-size:.93rem;transition:border-color .2s,box-shadow .2s;width:100%;background:#fff}
+input:focus,textarea:focus,select:focus{outline:none;border-color:var(--primary);box-shadow:0 0 0 3px rgba(191,4,19,.1)}
+textarea{resize:vertical;min-height:90px;line-height:1.5}
+.cpw{display:flex;align-items:center;gap:.8rem}
+.cpw input[type=color]{width:44px;height:44px;border:none;border-radius:8px;cursor:pointer;padding:0;background:none;flex-shrink:0}
+.ig{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:1.2rem}
+.ic{background:#fff;border-radius:14px;padding:1.4rem;border:1px solid #f0f0f0;box-shadow:0 2px 10px rgba(0,0,0,.04);display:flex;flex-direction:column;gap:.9rem}
+.ic h4{font-size:.95rem;color:var(--primary-dark);font-weight:700}
+.ic p{font-size:.8rem;color:var(--text-muted)}
+.ipb{width:100%;height:150px;background:#f9fafb;border:2px dashed #d1d5db;border-radius:10px;overflow:hidden;display:flex;align-items:center;justify-content:center}
+.ipb img{max-width:100%;max-height:100%;object-fit:contain}
+.ua{border:2px dashed #d1d5db;border-radius:12px;padding:1.4rem;text-align:center;cursor:pointer;transition:all .2s;background:#fafafa}
+.ua:hover,.ua.drag{border-color:var(--primary);background:rgba(191,4,19,.03)}
+.ua p{font-size:.85rem;color:#6b7280;margin-top:.4rem;font-weight:500}
+.pimg{width:100%;max-height:180px;object-fit:cover;border-radius:10px;margin-top:.8rem;border:1px solid #e5e7eb}
+.alert{padding:.9rem 1.2rem;border-radius:10px;font-size:.9rem;margin-bottom:1.2rem;display:none}
+.alert.show{display:block;animation:fadeIn .2s}
+.as{background:#dcfce7;color:#15803d;border:1px solid #bbf7d0}
+.ae{background:#fee2e2;color:#b91c1c;border:1px solid #fca5a5}
+.input-error{border-color:#ef4444 !important;background-color:#fef2f2 !important;box-shadow:0 0 0 3px rgba(239,68,68,.18) !important}
+.ua.input-error{border-color:#ef4444 !important;background-color:#fef2f2 !important;box-shadow:0 0 0 3px rgba(239,68,68,.18) !important}
+.toast{position:fixed;bottom:2rem;right:2rem;background:#111827;color:#fff;padding:.9rem 1.6rem;border-radius:50px;box-shadow:0 10px 30px rgba(0,0,0,.25);font-size:.9rem;font-weight:600;transform:translateY(100px);opacity:0;transition:all .3s cubic-bezier(.4,0,.2,1);z-index:999}
+.toast.show{transform:translateY(0);opacity:1}
+.toast.success{background:#15803d}.toast.error{background:#b91c1c}
+.mo{position:fixed;inset:0;background:rgba(0,0,0,.55);backdrop-filter:blur(4px);z-index:200;display:flex;align-items:center;justify-content:center;padding:1.2rem;opacity:0;visibility:hidden;transition:all .25s}
+.mo.open{opacity:1;visibility:visible}
+.modal{background:#fff;border-radius:18px;width:100%;max-width:600px;max-height:90vh;overflow-y:auto;transform:scale(.96) translateY(10px);transition:transform .25s;box-shadow:0 20px 40px rgba(0,0,0,.2)}
+.mo.open .modal{transform:scale(1) translateY(0)}
+.mh{padding:1.5rem;border-bottom:1px solid #f3f4f6;display:flex;align-items:center;justify-content:space-between}
+.mh h2{font-size:1.2rem;color:var(--primary-dark);font-weight:700}
+.mb{padding:1.5rem}.mf{padding:1.2rem 1.5rem;border-top:1px solid #f3f4f6;display:flex;justify-content:flex-end;gap:.8rem;background:#fafafa;border-radius:0 0 18px 18px}
+.cb{background:none;border:none;cursor:pointer;font-size:1.4rem;color:#9ca3af;line-height:1}.cb:hover{color:#111827}
+.empty{text-align:center;padding:3rem;color:#9ca3af}
+.table-responsive{width:100%;overflow-x:auto;-webkit-overflow-scrolling:touch}
+@media(max-width:850px){.sidebar{transform:translateX(-100%);transition:transform .3s}.sidebar.open{transform:translateX(0)}.main{margin-left:0}.content{padding:1.5rem}.fg{grid-template-columns:1fr} #mobile-menu-btn{display:block !important;} .topbar{padding:1rem 1.5rem;} .ta span {display:none;} #close-sidebar-btn{display:block !important;} }
+</style>
+</head>
+<body>
+<aside class="sidebar" id="sidebar">
+<div class="sb-brand"><img src="/nad.png" alt="NAD"><div><div class="sb-bt">NAD Constructora</div><div class="sb-bs">Panel de Control CMS</div></div><button id="close-sidebar-btn" onclick="document.getElementById('sidebar').classList.remove('open')" style="display:none; background:none; border:none; color:rgba(255,255,255,0.7); font-size:1.8rem; margin-left:auto; cursor:pointer;">&times;</button></div>
+<nav class="sb-nav">
+<div class="ngl">Principal</div>
+<div class="ni active" onclick="showView('dashboard')" id="nav-dashboard"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/></svg>Dashboard</div>
+<div class="ni" onclick="showView('projects')" id="nav-projects"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>Proyectos</div>
+<div class="ngl">Secciones del Sitio</div>
+<div class="ni" onclick="showView('sec-navbar')" id="nav-sec-navbar"><span class="ne">🧭</span> Menú Superior</div>
+<div class="ni" onclick="showView('sec-hero')" id="nav-sec-hero"><span class="ne">🏠</span> Hero / Portada</div>
+<div class="ni" onclick="showView('sec-stats')" id="nav-sec-stats"><span class="ne">📈</span> Estadísticas</div>
+<div class="ni" onclick="showView('sec-services')" id="nav-sec-services"><span class="ne">🔨</span> Servicios</div>
+<div class="ni" onclick="showView('sec-about')" id="nav-sec-about"><span class="ne">👥</span> Nosotros</div>
+<div class="ni" onclick="showView('sec-projects')" id="nav-sec-projects"><span class="ne">📁</span> Sección Proyectos</div>
+<div class="ni" onclick="showView('sec-video')" id="nav-sec-video"><span class="ne">🎬</span> Video Institucional</div>
+<div class="ni" onclick="showView('sec-clients')" id="nav-sec-clients"><span class="ne">🏢</span> Nuestros Clientes</div>
+<div class="ni" onclick="showView('sec-contact')" id="nav-sec-contact"><span class="ne">📞</span> CTA &amp; Contacto</div>
+<div class="ngl">Global</div>
+<div class="ni" onclick="showView('global-styles')" id="nav-global-styles"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="4 7 4 4 20 4 20 7"/><line x1="9" y1="20" x2="15" y2="20"/><line x1="12" y1="4" x2="12" y2="20"/></svg>Estilo Global</div>
+<div class="ni" onclick="showView('global-images')" id="nav-global-images"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>Imágenes Globales</div>
+<div class="ni" onclick="showView('settings')" id="nav-settings"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>Configuración</div>
+</nav>
+<div class="sb-foot"><a href="#" class="logout-btn" id="logout-btn"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>Cerrar sesión</a></div>
+</aside>
+<div class="main">
+<header class="topbar"><div style="display:flex;align-items:center;"><button id="mobile-menu-btn" onclick="document.getElementById('sidebar').classList.toggle('open')" style="display:none; background:none; border:none; font-size:1.8rem; cursor:pointer; color:var(--primary-dark); margin-right:1rem; line-height:1;">☰</button><h1 id="page-title">Dashboard</h1></div><div class="ta"><a href="/" target="_blank" class="bvs"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg><span class="vsw-text">Ver Sitio Web</span></a><div class="tu"><div class="ud">A</div><span class="admin-text">Administrador</span></div></div></header>
+<div class="content">
+
+<!-- DASHBOARD -->
+<div class="view active" id="view-dashboard">
+<div class="sr"><div class="sc"><div class="num" id="stat-total">&mdash;</div><div class="lbl">Total de proyectos</div></div><div class="sc"><div class="num" id="stat-featured" style="color:#b45309">&mdash;</div><div class="lbl">Destacados</div></div><div class="sc"><div class="num" id="stat-extra">&mdash;</div><div class="lbl">Más proyectos</div></div><div class="sc"><div class="num" id="stat-visible" style="color:#15803d">&mdash;</div><div class="lbl">Visibles</div></div></div>
+<div class="tw"><div class="th"><h2>Proyectos recientes</h2><button class="btn bp" onclick="openNewModal()">+ Nuevo proyecto</button></div>
+<div class="table-responsive"><table><thead><tr><th>Imagen</th><th>Título</th><th>Tipo</th><th>Año</th><th>Visibilidad</th><th>Acciones</th></tr></thead><tbody id="dash-tbody"></tbody></table></div></div>
+</div>
+
+<!-- PROYECTOS -->
+<div class="view" id="view-projects">
+<div class="tw"><div class="th"><h2>Gestión de Proyectos</h2><div style="display:flex;align-items:center;gap:.5rem;flex:1;max-width:380px;"><input type="text" placeholder="Buscar..." style="width:100%;padding:.55rem .9rem;font-size:.88rem;border:1px solid #d1d5db;border-radius:8px;" oninput="filterProjects(this.value)"></div><button class="btn bp" onclick="openNewModal()">+ Nuevo proyecto</button></div>
+<div class="table-responsive"><table><thead><tr><th>Imagen</th><th>Título</th><th>Categoría</th><th>Tipo</th><th>Año</th><th>Visibilidad</th><th>Acciones</th></tr></thead><tbody id="proj-tbody"></tbody></table></div></div>
+</div>
+
+<!-- NAVBAR -->
+<div class="view" id="view-sec-navbar">
+<div class="smh"><div class="icon">🧭</div><div><h2>Menú Superior (Navbar)</h2><p>Apariencia de la barra de navegación</p></div></div>
+<div class="fc"><div class="fch"><h3>Apariencia del Menú</h3><p>Colores y tipografía de los enlaces superiores</p></div><div class="fg">
+<div class="fgr"><label>Color de Fondo (Scroll)</label><div class="cpw"><input type="color" id="ss-picker-navbar-bg_color" value="#FFFFFF" oninput="document.getElementById('ss-navbar-bg_color').value=this.value"><input type="text" id="ss-navbar-bg_color" value="#FFFFFF" oninput="ssSync('navbar','bg_color',this.value)"></div></div>
+<div class="fgr"><label>Color de Enlaces</label><div class="cpw"><input type="color" id="ss-picker-navbar-text_color" value="#111111" oninput="document.getElementById('ss-navbar-text_color').value=this.value"><input type="text" id="ss-navbar-text_color" value="#111111" oninput="ssSync('navbar','text_color',this.value)"></div></div>
+<div class="fgr"><label>Color Hover Enlace</label><div class="cpw"><input type="color" id="ss-picker-navbar-link_hover_color" value="#C1121F" oninput="document.getElementById('ss-navbar-link_hover_color').value=this.value"><input type="text" id="ss-navbar-link_hover_color" value="#C1121F" oninput="ssSync('navbar','link_hover_color',this.value)"></div></div>
+<div class="fgr"><label>Fuente de Enlaces</label><select id="ss-navbar-font_body"><option value="">Usar Global</option><option value="Outfit">Outfit</option><option value="Inter">Inter</option><option value="Roboto">Roboto</option><option value="Open Sans">Open Sans</option><option value="Montserrat">Montserrat</option></select></div>
+<div class="fgr"><label>Tamaño de Enlaces</label><select id="ss-navbar-body_size"><option value="">Usar Global</option><option value="1.1rem">1.1rem</option><option value="1rem">1rem</option><option value="0.95rem">0.95rem</option></select></div>
+</div></div>
+<div class="save-row"><button class="btn bp" onclick="saveSection('navbar')">💾 Guardar Menú</button></div>
+</div>
+
+<!-- HERO -->
+<div class="view" id="view-sec-hero">
+<div class="smh"><div class="icon">🏠</div><div><h2>Hero / Portada</h2><p>Textos e imágenes del banner principal</p></div></div>
+<div class="mtabs"><button class="mtb active" onclick="mt('hero','textos',this)">Textos</button><button class="mtb" onclick="mt('hero','imagenes',this)">Imágenes</button><button class="mtb" onclick="mt('hero','apariencia',this)">Apariencia</button></div>
+<div class="mtp active" id="hero-textos">
+<div class="fc"><div class="fch"><h3>Textos del Hero</h3></div><div class="fg">
+<div class="fgr full"><label>Etiqueta Superior</label><input type="text" id="txt-hero_label"></div>
+<div class="fgr full"><label>Título Principal (H1)</label><input type="text" id="txt-hero_title"></div>
+<div class="fgr full"><label>Descripción</label><textarea id="txt-hero_desc"></textarea></div>
+<div class="fgr"><label>Texto Botón 1 (Proyectos)</label><input type="text" id="txt-hero_btn_projects"></div>
+<div class="fgr"><label>Texto Botón 2 (Consultas)</label><input type="text" id="txt-hero_btn_contact"></div>
+</div></div></div>
+<div class="mtp" id="hero-imagenes">
+<div class="fc"><div class="fch"><h3>Fondo del Hero (Fallback)</h3></div><div class="ig"><div class="ic"><h4>Imagen de Fondo</h4><div class="ipb"><img id="img-prev-hero_bg" src="" alt="Hero"></div><button class="btn bs" onclick="ua('hero_bg')">Subir nuevo banner</button><input type="file" id="file-hero_bg" accept="image/*" style="display:none" onchange="uploadSiteAsset('hero_bg',this)"></div></div></div>
+<div class="fc"><div class="fch"><h3>Galería del Inicio (Hero Slider)</h3><p>Imágenes que rotan automáticamente (1920x1080 recomendado)</p></div>
+<div id="hero-slider-previews" style="display:flex;flex-wrap:wrap;gap:10px;margin-bottom:15px;"></div>
+<button class="btn bp" onclick="ua('hero_slider')">Subir imágenes al Slider</button>
+<input type="file" id="file-hero_slider" accept="image/*" multiple style="display:none" onchange="uploadHeroSliderAsset(this)">
+</div></div>
+<div class="mtp" id="hero-apariencia">
+<div class="fc"><div class="fch"><h3>Apariencia</h3><p>Colores y tipografía del banner principal</p></div><div class="fg">
+<div class="fgr"><label>Color de Título (H1)</label><div class="cpw"><input type="color" id="ss-picker-hero-heading_color" value="#FFFFFF" oninput="document.getElementById('ss-hero-heading_color').value=this.value"><input type="text" id="ss-hero-heading_color" value="#FFFFFF" oninput="ssSync('hero','heading_color',this.value)"></div></div>
+<div class="fgr"><label>Color de Descripción</label><div class="cpw"><input type="color" id="ss-picker-hero-text_color" value="#FFFFFF" oninput="document.getElementById('ss-hero-text_color').value=this.value"><input type="text" id="ss-hero-text_color" value="#FFFFFF" oninput="ssSync('hero','text_color',this.value)"></div></div>
+<div class="fgr"><label>Oscurecer Imagen de Fondo</label><select id="ss-hero-overlay_opacity"><option value="0.4">Claro</option><option value="0.55">Medio</option><option value="0.65">Normal</option><option value="0.75">Oscuro</option><option value="0.85">Muy oscuro</option></select></div>
+<div class="fgr"><label>Fuente de Título</label><select id="ss-hero-font_heading"><option value="">Usar Global</option><option value="Outfit">Outfit</option><option value="Inter">Inter</option><option value="Roboto">Roboto</option><option value="Cinzel">Cinzel</option><option value="Montserrat">Montserrat</option></select></div>
+<div class="fgr"><label>Fuente de Texto</label><select id="ss-hero-font_body"><option value="">Usar Global</option><option value="Outfit">Outfit</option><option value="Inter">Inter</option><option value="Roboto">Roboto</option><option value="Open Sans">Open Sans</option><option value="Montserrat">Montserrat</option></select></div>
+</div></div></div>
+<div class="save-row"><button class="btn bp" onclick="saveSection('hero')">💾 Guardar Hero</button></div>
+</div>
+
+<!-- ESTADISTICAS -->
+<div class="view" id="view-sec-stats">
+<div class="smh"><div class="icon">📈</div><div><h2>Estadísticas</h2><p>Números y etiquetas de la barra animada de logros</p></div></div>
+<div class="fc"><div class="fch"><h3>Cifras Estadísticas</h3></div><div class="fg">
+<div class="fgr"><label>Estadística 1: Número</label><input type="text" id="txt-stats_years_num" placeholder="+35"></div>
+<div class="fgr"><label>Estadística 1: Etiqueta</label><input type="text" id="txt-stats_years_lbl"></div>
+<div class="fgr"><label>Estadística 2: Número</label><input type="text" id="txt-stats_projects_num" placeholder="+50"></div>
+<div class="fgr"><label>Estadística 2: Etiqueta</label><input type="text" id="txt-stats_projects_lbl"></div>
+<div class="fgr"><label>Estadística 3: Número</label><input type="text" id="txt-stats_clients_num" placeholder="100%"></div>
+<div class="fgr"><label>Estadística 3: Etiqueta</label><input type="text" id="txt-stats_clients_lbl"></div>
+
+</div></div>
+<div class="fc"><div class="fch"><h3>Apariencia</h3><p>Colores y tipografía para esta sección</p></div><div class="fg">
+<div class="fgr"><label>Color de Fondo</label><div class="cpw"><input type="color" id="ss-picker-stats-bg_color" value="#FAFAFA" oninput="document.getElementById('ss-stats-bg_color').value=this.value"><input type="text" id="ss-stats-bg_color" value="#FAFAFA" oninput="ssSync('stats','bg_color',this.value)"></div></div>
+<div class="fgr"><label>Color del Texto</label><div class="cpw"><input type="color" id="ss-picker-stats-text_color" value="#111111" oninput="document.getElementById('ss-stats-text_color').value=this.value"><input type="text" id="ss-stats-text_color" value="#111111" oninput="ssSync('stats','text_color',this.value)"></div></div>
+<div class="fgr"><label>Color de Títulos</label><div class="cpw"><input type="color" id="ss-picker-stats-heading_color" value="#111111" oninput="document.getElementById('ss-stats-heading_color').value=this.value"><input type="text" id="ss-stats-heading_color" value="#111111" oninput="ssSync('stats','heading_color',this.value)"></div></div>
+<div class="fgr"><label>Fuente de Títulos</label><select id="ss-stats-font_heading"><option value="">Usar Global</option><option value="Outfit">Outfit</option><option value="Inter">Inter</option><option value="Roboto">Roboto</option><option value="Cinzel">Cinzel</option><option value="Montserrat">Montserrat</option></select></div>
+<div class="fgr"><label>Tamaño Título</label><select id="ss-stats-heading_size"><option value="">Usar Global</option><option value="4.5rem">4.5rem (Hero)</option><option value="2.8rem">2.8rem (Grande)</option><option value="2.5rem">2.5rem (Normal)</option><option value="2.2rem">2.2rem (Mediano)</option><option value="2rem">2rem (Compacto)</option></select></div>
+<div class="fgr"><label>Fuente de Texto</label><select id="ss-stats-font_body"><option value="">Usar Global</option><option value="Outfit">Outfit</option><option value="Inter">Inter</option><option value="Roboto">Roboto</option><option value="Open Sans">Open Sans</option><option value="Montserrat">Montserrat</option></select></div>
+<div class="fgr"><label>Tamaño Texto</label><select id="ss-stats-body_size"><option value="">Usar Global</option><option value="1.1rem">1.1rem (Amplio)</option><option value="1rem">1rem (Normal)</option><option value="0.95rem">0.95rem (Compacto)</option></select></div>
+</div></div>
+<div class="save-row"><button class="btn bp" onclick="saveSection('stats')">💾 Guardar Estadísticas</button></div>
+</div>
+
+<!-- SERVICIOS -->
+<div class="view" id="view-sec-services">
+<div class="smh"><div class="icon">🔨</div><div><h2>Servicios</h2><p>Título, descripción y contenido de cada servicio</p></div></div>
+<div class="fc"><div class="fch"><h3>Encabezado de la Sección</h3></div><div class="fg">
+<div class="fgr full"><label>Título</label><input type="text" id="txt-services_title"></div>
+<div class="fgr full"><label>Subtítulo</label><textarea id="txt-services_subtitle" style="min-height:70px"></textarea></div>
+</div></div>
+<div class="fc"><div class="fch"><h3>Servicio 1</h3></div><div class="fg">
+<div class="fgr full"><label>Título</label><input type="text" id="txt-service_1_title"></div>
+<div class="fgr full"><label>Descripción</label><textarea id="txt-service_1_desc"></textarea></div>
+<div class="fgr full"><label>Puntos (1 por línea)</label><textarea id="txt-service_1_items"></textarea></div>
+</div></div>
+<div class="fc"><div class="fch"><h3>Servicio 2 (Destacado)</h3></div><div class="fg">
+<div class="fgr full"><label>Título</label><input type="text" id="txt-service_2_title"></div>
+<div class="fgr full"><label>Descripción</label><textarea id="txt-service_2_desc"></textarea></div>
+<div class="fgr full"><label>Puntos</label><textarea id="txt-service_2_items"></textarea></div>
+</div></div>
+<div class="fc"><div class="fch"><h3>Servicio 3</h3></div><div class="fg">
+<div class="fgr full"><label>Título</label><input type="text" id="txt-service_3_title"></div>
+<div class="fgr full"><label>Descripción</label><textarea id="txt-service_3_desc"></textarea></div>
+<div class="fgr full"><label>Puntos</label><textarea id="txt-service_3_items"></textarea></div>
+</div></div>
+<div class="fc"><div class="fch"><h3>Apariencia</h3><p>Colores y tipografía para esta sección</p></div><div class="fg">
+<div class="fgr"><label>Color de Fondo</label><div class="cpw"><input type="color" id="ss-picker-services-bg_color" value="#FAFAFA" oninput="document.getElementById('ss-services-bg_color').value=this.value"><input type="text" id="ss-services-bg_color" value="#FAFAFA" oninput="ssSync('services','bg_color',this.value)"></div></div>
+<div class="fgr"><label>Fondo de Tarjetas (Cards)</label><div class="cpw"><input type="color" id="ss-picker-services-card_bg" value="#FFFFFF" oninput="document.getElementById('ss-services-card_bg').value=this.value"><input type="text" id="ss-services-card_bg" value="#FFFFFF" oninput="ssSync('services','card_bg',this.value)"></div></div>
+<div class="fgr"><label>Borde e Ícono de Tarjetas</label><div class="cpw"><input type="color" id="ss-picker-services-card_border_color" value="#C1121F" oninput="document.getElementById('ss-services-card_border_color').value=this.value"><input type="text" id="ss-services-card_border_color" value="#C1121F" oninput="ssSync('services','card_border_color',this.value)"></div></div>
+<div class="fgr"><label>Color del Texto</label><div class="cpw"><input type="color" id="ss-picker-services-text_color" value="#111111" oninput="document.getElementById('ss-services-text_color').value=this.value"><input type="text" id="ss-services-text_color" value="#111111" oninput="ssSync('services','text_color',this.value)"></div></div>
+<div class="fgr"><label>Color de Títulos</label><div class="cpw"><input type="color" id="ss-picker-services-heading_color" value="#111111" oninput="document.getElementById('ss-services-heading_color').value=this.value"><input type="text" id="ss-services-heading_color" value="#111111" oninput="ssSync('services','heading_color',this.value)"></div></div>
+<div class="fgr"><label>Servicio Destacado</label><select id="ss-services-featured_card"><option value="1">Servicio 1</option><option value="2">Servicio 2</option><option value="3">Servicio 3</option><option value="0">Ninguno</option></select></div>
+<div class="fgr"><label>Fuente de Títulos</label><select id="ss-services-font_heading"><option value="">Usar Global</option><option value="Outfit">Outfit</option><option value="Inter">Inter</option><option value="Roboto">Roboto</option><option value="Cinzel">Cinzel</option><option value="Montserrat">Montserrat</option></select></div>
+<div class="fgr"><label>Tamaño Título</label><select id="ss-services-heading_size"><option value="">Usar Global</option><option value="2.8rem">2.8rem (Grande)</option><option value="2.5rem">2.5rem (Normal)</option><option value="2.2rem">2.2rem (Mediano)</option></select></div>
+<div class="fgr"><label>Fuente de Texto</label><select id="ss-services-font_body"><option value="">Usar Global</option><option value="Outfit">Outfit</option><option value="Inter">Inter</option><option value="Roboto">Roboto</option><option value="Open Sans">Open Sans</option><option value="Montserrat">Montserrat</option></select></div>
+<div class="fgr"><label>Tamaño Texto</label><select id="ss-services-body_size"><option value="">Usar Global</option><option value="1.1rem">1.1rem (Amplio)</option><option value="1rem">1rem (Normal)</option></select></div>
+</div></div>
+<div class="save-row"><button class="btn bp" onclick="saveSection('services')">💾 Guardar Servicios</button></div>
+</div>
+
+<!-- NOSOTROS -->
+<div class="view" id="view-sec-about">
+<div class="smh"><div class="icon">👥</div><div><h2>Nosotros</h2><p>Historia, visión y presentación del equipo directivo</p></div></div>
+<div class="mtabs"><button class="mtb active" onclick="mt('about','textos',this)">Textos</button><button class="mtb" onclick="mt('about','imagenes',this)">Imágenes</button></div>
+<div class="mtp active" id="about-textos">
+<div class="fc"><div class="fch"><h3>Textos</h3></div><div class="fg">
+<div class="fgr"><label>Etiqueta / Badge</label><input type="text" id="txt-about_badge"></div>
+<div class="fgr"><label>Título Principal</label><input type="text" id="txt-about_title"></div>
+<div class="fgr full"><label>Párrafo 1</label><textarea id="txt-about_p1"></textarea></div>
+<div class="fgr full"><label>Párrafo 2</label><textarea id="txt-about_p2"></textarea></div>
+<div class="fgr"><label>Cargo del Director</label><input type="text" id="txt-about_director_role"></div>
+<div class="fgr"><label>Nombre del Director</label><input type="text" id="txt-about_director_name"></div>
+<div class="fgr full"><label>Descripción del Director</label><textarea id="txt-about_director_desc"></textarea></div>
+<div class="fgr"><label>Badge: Años</label><input type="text" id="txt-about_exp_years" placeholder="+35"></div>
+<div class="fgr"><label>Badge: Texto</label><input type="text" id="txt-about_exp_text"></div>
+</div></div></div>
+<div class="mtp" id="about-imagenes">
+<div class="ig">
+<div class="ic"><h4>Imagen Sección Nosotros</h4><div class="ipb"><img id="img-prev-about_image" src="" alt="Nosotros"></div><button class="btn bs" onclick="ua('about_image')">Subir imagen</button><input type="file" id="file-about_image" accept="image/*" style="display:none" onchange="uploadSiteAsset('about_image',this)"></div>
+<div class="ic"><h4>Foto del Director</h4><div class="ipb"><img id="img-prev-director_image" src="/nad.png" alt="Director"></div><button class="btn bs" onclick="ua('director_image')">Subir foto</button><input type="file" id="file-director_image" accept="image/*" style="display:none" onchange="uploadSiteAsset('director_image',this)"></div>
+</div></div>
+<div class="fc"><div class="fch"><h3>Apariencia</h3><p>Colores y tipografía para esta sección</p></div><div class="fg">
+<div class="fgr"><label>Color de Fondo</label><div class="cpw"><input type="color" id="ss-picker-about-bg_color" value="#FAFAFA" oninput="document.getElementById('ss-about-bg_color').value=this.value"><input type="text" id="ss-about-bg_color" value="#FAFAFA" oninput="ssSync('about','bg_color',this.value)"></div></div>
+<div class="fgr"><label>Color del Texto</label><div class="cpw"><input type="color" id="ss-picker-about-text_color" value="#111111" oninput="document.getElementById('ss-about-text_color').value=this.value"><input type="text" id="ss-about-text_color" value="#111111" oninput="ssSync('about','text_color',this.value)"></div></div>
+<div class="fgr"><label>Color de Títulos</label><div class="cpw"><input type="color" id="ss-picker-about-heading_color" value="#111111" oninput="document.getElementById('ss-about-heading_color').value=this.value"><input type="text" id="ss-about-heading_color" value="#111111" oninput="ssSync('about','heading_color',this.value)"></div></div>
+<div class="fgr"><label>Fuente de Títulos</label><select id="ss-about-font_heading"><option value="">Usar Global</option><option value="Outfit">Outfit</option><option value="Inter">Inter</option><option value="Roboto">Roboto</option><option value="Cinzel">Cinzel</option><option value="Montserrat">Montserrat</option></select></div>
+<div class="fgr"><label>Tamaño Título</label><select id="ss-about-heading_size"><option value="">Usar Global</option><option value="2.8rem">2.8rem (Grande)</option><option value="2.5rem">2.5rem (Normal)</option></select></div>
+<div class="fgr"><label>Fuente de Texto</label><select id="ss-about-font_body"><option value="">Usar Global</option><option value="Outfit">Outfit</option><option value="Inter">Inter</option><option value="Roboto">Roboto</option><option value="Open Sans">Open Sans</option><option value="Montserrat">Montserrat</option></select></div>
+<div class="fgr"><label>Tamaño Texto</label><select id="ss-about-body_size"><option value="">Usar Global</option><option value="1.1rem">1.1rem (Amplio)</option><option value="1rem">1rem (Normal)</option></select></div>
+</div></div>
+<div class="save-row"><button class="btn bp" onclick="saveSection('about')">💾 Guardar Nosotros</button></div>
+</div>
+
+<!-- SECCION PROYECTOS -->
+<div class="view" id="view-sec-projects">
+<div class="smh"><div class="icon">📁</div><div><h2>Sección Proyectos</h2><p>Título, subtítulo y textos del botón desplegable</p></div></div>
+<div class="fc"><div class="fch"><h3>Encabezado</h3></div><div class="fg">
+<div class="fgr full"><label>Título</label><input type="text" id="txt-projects_title"></div>
+<div class="fgr full"><label>Subtítulo</label><textarea id="txt-projects_subtitle" style="min-height:70px"></textarea></div>
+<div class="fgr"><label>Texto Botón (Normal)</label><input type="text" id="txt-btn_ver_mas" placeholder="Ver más proyectos"></div>
+<div class="fgr"><label>Texto Botón (Al expandir)</label><input type="text" id="txt-btn_ver_menos" placeholder="Ver menos proyectos"></div>
+</div></div>
+<div class="fc"><div class="fch"><h3>Apariencia</h3><p>Colores y tipografía para esta sección</p></div><div class="fg">
+<div class="fgr"><label>Color de Fondo</label><div class="cpw"><input type="color" id="ss-picker-projects-bg_color" value="#FFFFFF" oninput="document.getElementById('ss-projects-bg_color').value=this.value"><input type="text" id="ss-projects-bg_color" value="#FFFFFF" oninput="ssSync('projects','bg_color',this.value)"></div></div>
+<div class="fgr"><label>Fondo de Tarjetas (Cards)</label><div class="cpw"><input type="color" id="ss-picker-projects-card_bg" value="#FAFAFA" oninput="document.getElementById('ss-projects-card_bg').value=this.value"><input type="text" id="ss-projects-card_bg" value="#FAFAFA" oninput="ssSync('projects','card_bg',this.value)"></div></div>
+<div class="fgr"><label>Color del Texto</label><div class="cpw"><input type="color" id="ss-picker-projects-text_color" value="#111111" oninput="document.getElementById('ss-projects-text_color').value=this.value"><input type="text" id="ss-projects-text_color" value="#111111" oninput="ssSync('projects','text_color',this.value)"></div></div>
+<div class="fgr"><label>Color de Títulos</label><div class="cpw"><input type="color" id="ss-picker-projects-heading_color" value="#111111" oninput="document.getElementById('ss-projects-heading_color').value=this.value"><input type="text" id="ss-projects-heading_color" value="#111111" oninput="ssSync('projects','heading_color',this.value)"></div></div>
+<div class="fgr"><label>Fuente de Títulos</label><select id="ss-projects-font_heading"><option value="">Usar Global</option><option value="Outfit">Outfit</option><option value="Inter">Inter</option><option value="Roboto">Roboto</option><option value="Cinzel">Cinzel</option><option value="Montserrat">Montserrat</option></select></div>
+<div class="fgr"><label>Tamaño Título</label><select id="ss-projects-heading_size"><option value="">Usar Global</option><option value="2.8rem">2.8rem (Grande)</option><option value="2.5rem">2.5rem (Normal)</option><option value="2.2rem">2.2rem (Mediano)</option></select></div>
+<div class="fgr"><label>Fuente de Texto</label><select id="ss-projects-font_body"><option value="">Usar Global</option><option value="Outfit">Outfit</option><option value="Inter">Inter</option><option value="Roboto">Roboto</option><option value="Open Sans">Open Sans</option><option value="Montserrat">Montserrat</option></select></div>
+<div class="fgr"><label>Tamaño Texto</label><select id="ss-projects-body_size"><option value="">Usar Global</option><option value="1.1rem">1.1rem (Amplio)</option><option value="1rem">1rem (Normal)</option></select></div>
+</div></div>
+<div class="save-row"><button class="btn bp" onclick="saveSection('proj-texts')">💾 Guardar Sección Proyectos</button></div>
+</div>
+
+<!-- VIDEO -->
+<div class="view" id="view-sec-video">
+<div class="smh"><div class="icon">🎬</div><div><h2>Publicaciones Recientes</h2><p>Título, descripción y archivos de video</p></div></div>
+<div class="fc"><div class="fch"><h3>Contenido del Video</h3></div>
+<div class="fgr full" style="margin-bottom:1rem"><label>Título del Carrusel</label><input type="text" id="vid-title"></div>
+<div class="fgr full" style="margin-bottom:1.2rem"><label>Descripción</label><textarea id="vid-description" style="min-height:70px"></textarea></div>
+<div class="fgr full"><label>Videos Promocionales</label>
+<div id="video-urls-list" style="display:flex;flex-direction:column;gap:10px;margin-bottom:10px;"></div>
+<div style="display:flex;gap:10px;margin-top:10px;"><button type="button" class="btn bs" onclick="addVideoRow()">+ Agregar Enlace</button><button type="button" class="btn bs" onclick="document.getElementById('file-video').click()">Subir Archivo</button></div>
+<input type="file" id="file-video" accept="video/*,image/*" style="display:none" onchange="uploadVideoAsset(this)">
+</div></div>
+<div class="fc"><div class="fch"><h3>Apariencia</h3><p>Colores y tipografía para esta sección</p></div><div class="fg">
+<div class="fgr"><label>Color de Fondo</label><div class="cpw"><input type="color" id="ss-picker-video-bg_color" value="#FAFAFA" oninput="document.getElementById('ss-video-bg_color').value=this.value"><input type="text" id="ss-video-bg_color" value="#FAFAFA" oninput="ssSync('video','bg_color',this.value)"></div></div>
+<div class="fgr"><label>Color del Texto</label><div class="cpw"><input type="color" id="ss-picker-video-text_color" value="#111111" oninput="document.getElementById('ss-video-text_color').value=this.value"><input type="text" id="ss-video-text_color" value="#111111" oninput="ssSync('video','text_color',this.value)"></div></div>
+<div class="fgr"><label>Color de Títulos</label><div class="cpw"><input type="color" id="ss-picker-video-heading_color" value="#111111" oninput="document.getElementById('ss-video-heading_color').value=this.value"><input type="text" id="ss-video-heading_color" value="#111111" oninput="ssSync('video','heading_color',this.value)"></div></div>
+<div class="fgr"><label>Fuente de Títulos</label><select id="ss-video-font_heading"><option value="">Usar Global</option><option value="Outfit">Outfit</option><option value="Inter">Inter</option><option value="Roboto">Roboto</option><option value="Cinzel">Cinzel</option><option value="Montserrat">Montserrat</option></select></div>
+<div class="fgr"><label>Tamaño Título</label><select id="ss-video-heading_size"><option value="">Usar Global</option><option value="4.5rem">4.5rem (Hero)</option><option value="2.8rem">2.8rem (Grande)</option><option value="2.5rem">2.5rem (Normal)</option><option value="2.2rem">2.2rem (Mediano)</option><option value="2rem">2rem (Compacto)</option></select></div>
+<div class="fgr"><label>Fuente de Texto</label><select id="ss-video-font_body"><option value="">Usar Global</option><option value="Outfit">Outfit</option><option value="Inter">Inter</option><option value="Roboto">Roboto</option><option value="Open Sans">Open Sans</option><option value="Montserrat">Montserrat</option></select></div>
+<div class="fgr"><label>Tamaño Texto</label><select id="ss-video-body_size"><option value="">Usar Global</option><option value="1.1rem">1.1rem (Amplio)</option><option value="1rem">1rem (Normal)</option><option value="0.95rem">0.95rem (Compacto)</option></select></div>
+</div></div>
+<div class="save-row"><button class="btn bp" onclick="saveSection('video')">💾 Guardar Video</button></div>
+</div>
+
+<!-- CLIENTES -->
+<div class="view" id="view-sec-clients">
+<div class="smh"><div class="icon">🏢</div><div><h2>Nuestros Clientes</h2><p>Logos del carrusel y configuración visual de la sección</p></div></div>
+<div class="mtabs"><button class="mtb active" onclick="mt('clients','logos',this)">Logos</button><button class="mtb" onclick="mt('clients','diseno',this)">Diseño</button><button class="mtb" onclick="mt('clients','texto',this)">Texto</button></div>
+<div class="mtp active" id="clients-logos">
+<div class="fc"><div class="fch"><h3>Logos de Clientes</h3><p>PNG con fondo transparente recomendado</p></div>
+<div id="clients-logos-previews" style="display:flex;flex-wrap:wrap;gap:10px;margin-bottom:15px;"></div>
+<button class="btn bp" onclick="ua('clients_logos')">Subir logos de clientes</button>
+<input type="file" id="file-clients_logos" accept="image/*" multiple style="display:none" onchange="uploadClientsLogosAsset(this)">
+</div></div>
+<div class="mtp" id="clients-diseno">
+<div class="fc"><div class="fch"><h3>Diseño del Carrusel</h3></div><div class="fg">
+<div class="fgr"><label>Color de Fondo</label><div class="cpw"><input type="color" id="cc-picker-bg_color" value="#f7ebd7" oninput="document.getElementById('cc-bg_color').value=this.value"><input type="text" id="cc-bg_color" placeholder="#f7ebd7" oninput="syncCcPicker('bg_color',this.value)"></div></div>
+<div class="fgr"><label>Color del Título</label><div class="cpw"><input type="color" id="cc-picker-title_color" value="#73030D" oninput="document.getElementById('cc-title_color').value=this.value"><input type="text" id="cc-title_color" placeholder="#73030D" oninput="syncCcPicker('title_color',this.value)"></div></div>
+<div class="fgr"><label>Altura de los Logos</label><select id="cc-logo_height"><option value="120px">120px (Muy grande)</option><option value="100px">100px (Grande)</option><option value="80px">80px (Normal)</option><option value="60px" selected>60px (Mediano)</option><option value="40px">40px (Compacto)</option></select></div>
+<div class="fgr"><label>Color de los Logos</label><select id="cc-logo_color_mode"><option value="grayscale">Escala de grises</option><option value="mix">Mixto</option><option value="color">Color completo</option></select></div>
+<div class="fgr"><label>Velocidad</label><select id="cc-speed"><option value="10">Rápido (10s)</option><option value="20" selected>Normal (20s)</option><option value="35">Lento (35s)</option><option value="50">Muy lento (50s)</option></select></div>
+<div class="fgr"><label>Espaciado</label><select id="cc-gap"><option value="5rem">5rem (Amplio)</option><option value="3rem" selected>3rem (Normal)</option><option value="1.5rem">1.5rem (Compacto)</option></select></div>
+<div class="fgr"><label>Relleno vertical</label><select id="cc-padding"><option value="6rem">6rem (Amplio)</option><option value="4rem">4rem (Normal)</option><option value="2.5rem" selected>2.5rem (Compacto)</option></select></div>
+<div class="fgr"><label>Tamaño del Título</label><select id="cc-title_size"><option value="2.5rem" selected>2.5rem (Grande)</option><option value="2rem">2rem (Mediano)</option><option value="1.5rem">1.5rem (Compacto)</option></select></div>
+</div></div></div>
+<div class="mtp" id="clients-texto">
+<div class="fc"><div class="fch"><h3>Texto de la Sección</h3></div>
+<div class="fgr full"><label>Título</label><input type="text" id="cc-title" placeholder="Nuestros Clientes"></div>
+</div></div>
+<div class="fc"><div class="fch"><h3>Apariencia</h3><p>Colores y tipografía para esta sección</p></div><div class="fg">
+<div class="fgr"><label>Color de Fondo</label><div class="cpw"><input type="color" id="ss-picker-clients-bg_color" value="#FAFAFA" oninput="document.getElementById('ss-clients-bg_color').value=this.value"><input type="text" id="ss-clients-bg_color" value="#FAFAFA" oninput="ssSync('clients','bg_color',this.value)"></div></div>
+<div class="fgr"><label>Color del Texto</label><div class="cpw"><input type="color" id="ss-picker-clients-text_color" value="#111111" oninput="document.getElementById('ss-clients-text_color').value=this.value"><input type="text" id="ss-clients-text_color" value="#111111" oninput="ssSync('clients','text_color',this.value)"></div></div>
+<div class="fgr"><label>Color de Títulos</label><div class="cpw"><input type="color" id="ss-picker-clients-heading_color" value="#111111" oninput="document.getElementById('ss-clients-heading_color').value=this.value"><input type="text" id="ss-clients-heading_color" value="#111111" oninput="ssSync('clients','heading_color',this.value)"></div></div>
+<div class="fgr"><label>Fuente de Títulos</label><select id="ss-clients-font_heading"><option value="">Usar Global</option><option value="Outfit">Outfit</option><option value="Inter">Inter</option><option value="Roboto">Roboto</option><option value="Cinzel">Cinzel</option><option value="Montserrat">Montserrat</option></select></div>
+<div class="fgr"><label>Tamaño Título</label><select id="ss-clients-heading_size"><option value="">Usar Global</option><option value="4.5rem">4.5rem (Hero)</option><option value="2.8rem">2.8rem (Grande)</option><option value="2.5rem">2.5rem (Normal)</option><option value="2.2rem">2.2rem (Mediano)</option><option value="2rem">2rem (Compacto)</option></select></div>
+<div class="fgr"><label>Fuente de Texto</label><select id="ss-clients-font_body"><option value="">Usar Global</option><option value="Outfit">Outfit</option><option value="Inter">Inter</option><option value="Roboto">Roboto</option><option value="Open Sans">Open Sans</option><option value="Montserrat">Montserrat</option></select></div>
+<div class="fgr"><label>Tamaño Texto</label><select id="ss-clients-body_size"><option value="">Usar Global</option><option value="1.1rem">1.1rem (Amplio)</option><option value="1rem">1rem (Normal)</option><option value="0.95rem">0.95rem (Compacto)</option></select></div>
+</div></div>
+<div class="save-row"><button class="btn bp" onclick="saveSection('clients')">💾 Guardar Clientes</button></div>
+</div>
+
+<!-- CTA & CONTACTO -->
+<div class="view" id="view-sec-contact">
+<div class="smh"><div class="icon">📞</div><div><h2>CTA &amp; Contacto</h2><p>Llamado a la acción, datos de contacto y pie de página</p></div></div>
+<div class="fc"><div class="fch"><h3>Banner de Llamado a la Acción (CTA)</h3></div><div class="fg">
+<div class="fgr full"><label>Título del CTA</label><input type="text" id="txt-cta_title"></div>
+<div class="fgr full"><label>Subtítulo del CTA</label><textarea id="txt-cta_subtitle" style="min-height:70px"></textarea></div>
+<div class="fgr"><label>Texto Botón WhatsApp</label><input type="text" id="txt-cta_btn_wsp"></div>
+<div class="fgr"><label>Texto Botón Instagram</label><input type="text" id="txt-cta_btn_ig"></div>
+</div></div>
+<div class="fc"><div class="fch"><h3>Datos de Contacto</h3></div><div class="fg">
+<div class="fgr full"><label>Enlace WhatsApp (wa.me)</label><input type="text" id="txt-contact_wsp_link"></div>
+<div class="fgr"><label>Teléfono Visible</label><input type="text" id="txt-contact_phone"></div>
+<div class="fgr"><label>Correo Electrónico</label><input type="text" id="txt-contact_email"></div>
+<div class="fgr"><label>Instagram (@usuario)</label><input type="text" id="txt-contact_instagram"></div>
+<div class="fgr"><label>Ubicación / País</label><input type="text" id="txt-contact_address"></div>
+</div></div>
+<div class="fc"><div class="fch"><h3>Pie de Página (Footer)</h3></div><div class="fg">
+<div class="fgr full"><label>Descripción en Footer</label><textarea id="txt-footer_desc" style="min-height:70px"></textarea></div>
+<div class="fgr full"><label>Texto de Derechos Reservados</label><input type="text" id="txt-footer_copy"></div>
+</div></div>
+<div class="fc"><div class="fch"><h3>Imagen de Fondo del CTA</h3></div><div class="ig"><div class="ic"><h4>Fondo del Banner CTA</h4><div class="ipb"><img id="img-prev-cta_bg" src="" alt="CTA BG"></div><button class="btn bs" onclick="ua('cta_bg')">Subir imagen</button><input type="file" id="file-cta_bg" accept="image/*" style="display:none" onchange="uploadSiteAsset('cta_bg',this)"></div></div></div>
+<div class="fc"><div class="fch"><h3>Apariencia del CTA</h3><p>Colores y tipografía del banner de llamado a la acción</p></div><div class="fg">
+<div class="fgr"><label>Color de Título</label><div class="cpw"><input type="color" id="ss-picker-cta-heading_color" value="#FFFFFF" oninput="document.getElementById('ss-cta-heading_color').value=this.value"><input type="text" id="ss-cta-heading_color" value="#FFFFFF" oninput="ssSync('cta','heading_color',this.value)"></div></div>
+<div class="fgr"><label>Color de Texto</label><div class="cpw"><input type="color" id="ss-picker-cta-text_color" value="#FFFFFF" oninput="document.getElementById('ss-cta-text_color').value=this.value"><input type="text" id="ss-cta-text_color" value="#FFFFFF" oninput="ssSync('cta','text_color',this.value)"></div></div>
+<div class="fgr"><label>Oscurecer Imagen de Fondo</label><select id="ss-cta-overlay_opacity"><option value="0.5">Claro</option><option value="0.6">Medio</option><option value="0.7">Normal</option><option value="0.8">Oscuro</option><option value="0.9">Muy oscuro</option></select></div>
+<div class="fgr"><label>Fuente de Título</label><select id="ss-cta-font_heading"><option value="">Usar Global</option><option value="Outfit">Outfit</option><option value="Inter">Inter</option><option value="Roboto">Roboto</option><option value="Cinzel">Cinzel</option><option value="Montserrat">Montserrat</option></select></div>
+<div class="fgr"><label>Fuente de Texto</label><select id="ss-cta-font_body"><option value="">Usar Global</option><option value="Outfit">Outfit</option><option value="Inter">Inter</option><option value="Roboto">Roboto</option><option value="Open Sans">Open Sans</option><option value="Montserrat">Montserrat</option></select></div>
+</div></div>
+<div class="fc"><div class="fch"><h3>Apariencia del Footer</h3><p>Colores y tipografía del pie de página</p></div><div class="fg">
+<div class="fgr"><label>Color de Fondo</label><div class="cpw"><input type="color" id="ss-picker-footer-bg_color" value="#111111" oninput="document.getElementById('ss-footer-bg_color').value=this.value"><input type="text" id="ss-footer-bg_color" value="#111111" oninput="ssSync('footer','bg_color',this.value)"></div></div>
+<div class="fgr"><label>Color de Texto</label><div class="cpw"><input type="color" id="ss-picker-footer-text_color" value="#FFFFFF" oninput="document.getElementById('ss-footer-text_color').value=this.value"><input type="text" id="ss-footer-text_color" value="#FFFFFF" oninput="ssSync('footer','text_color',this.value)"></div></div>
+<div class="fgr"><label>Color de Títulos de Columna</label><div class="cpw"><input type="color" id="ss-picker-footer-heading_color" value="#FFC300" oninput="document.getElementById('ss-footer-heading_color').value=this.value"><input type="text" id="ss-footer-heading_color" value="#FFC300" oninput="ssSync('footer','heading_color',this.value)"></div></div>
+<div class="fgr"><label>Color de Enlaces al Pasar el Mouse</label><div class="cpw"><input type="color" id="ss-picker-footer-link_hover_color" value="#FFC300" oninput="document.getElementById('ss-footer-link_hover_color').value=this.value"><input type="text" id="ss-footer-link_hover_color" value="#FFC300" oninput="ssSync('footer','link_hover_color',this.value)"></div></div>
+<div class="fgr"><label>Fuente de Títulos</label><select id="ss-footer-font_heading"><option value="">Usar Global</option><option value="Outfit">Outfit</option><option value="Inter">Inter</option><option value="Roboto">Roboto</option><option value="Cinzel">Cinzel</option><option value="Montserrat">Montserrat</option></select></div>
+<div class="fgr"><label>Fuente de Texto</label><select id="ss-footer-font_body"><option value="">Usar Global</option><option value="Outfit">Outfit</option><option value="Inter">Inter</option><option value="Roboto">Roboto</option><option value="Open Sans">Open Sans</option><option value="Montserrat">Montserrat</option></select></div>
+</div></div>
+<div class="save-row"><button class="btn bp" onclick="saveSection('contact')">💾 Guardar CTA &amp; Contacto</button></div>
+</div>
+
+<!-- ESTILO GLOBAL -->
+<div class="view" id="view-global-styles">
+<div class="smh"><div class="icon" style="font-size:1.1rem">🎨</div><div><h2>Estilo Global</h2><p>Tipografía, tamaños y paleta de colores para todo el sitio</p></div></div>
+<form id="cms-styles-form" onsubmit="event.preventDefault();saveStyles();">
+<div class="fc"><div class="fch"><h3>Tipografía</h3></div><div class="fg">
+<div class="fgr"><label>Fuente para Títulos</label><select id="sty-font_heading"><option value="Outfit">Outfit (Moderna)</option><option value="Montserrat">Montserrat (Corporativa)</option><option value="Poppins">Poppins (Amigable)</option><option value="Inter">Inter (Legible)</option><option value="Playfair Display">Playfair Display (Elegante)</option><option value="Roboto">Roboto (Clásica)</option><option value="Cinzel">Cinzel (Arquitectónica)</option></select></div>
+<div class="fgr"><label>Fuente para Cuerpo</label><select id="sty-font_body"><option value="Inter">Inter (Alta legibilidad)</option><option value="Roboto">Roboto (Profesional)</option><option value="Outfit">Outfit (Moderna)</option><option value="Open Sans">Open Sans (Clásica)</option><option value="Lato">Lato (Corporativa)</option></select></div>
+</div></div>
+<div class="fc"><div class="fch"><h3>Tamaños de Fuentes</h3></div><div class="fg">
+<div class="fgr"><label>Título Hero (H1)</label><select id="sty-hero_title_size"><option value="5rem">5.0rem (Gigante)</option><option value="4.5rem">4.5rem (Grande)</option><option value="4.0rem">4.0rem (Estándar)</option><option value="3.5rem">3.5rem (Mediano)</option></select></div>
+<div class="fgr"><label>Títulos de Sección (H2)</label><select id="sty-h2_size"><option value="2.8rem">2.8rem (Grande)</option><option value="2.5rem">2.5rem (Predeterminado)</option><option value="2.2rem">2.2rem (Mediano)</option><option value="2.0rem">2.0rem (Compacto)</option></select></div>
+<div class="fgr full"><label>Tamaño del Cuerpo</label><select id="sty-body_font_size"><option value="1.1rem">1.1rem (Amplio)</option><option value="1rem">1.0rem (Estándar)</option><option value="0.95rem">0.95rem (Compacto)</option></select></div>
+</div></div>
+<div class="fc"><div class="fch"><h3>Paleta de Colores</h3></div><div class="fg">
+<div class="fgr"><label>Color Primario (Rojo)</label><div class="cpw"><input type="color" id="picker-color_primary" onchange="syncColor('color_primary',this.value)"><input type="text" id="sty-color_primary" oninput="syncPicker('color_primary',this.value)"></div></div>
+<div class="fgr"><label>Color Primario Oscuro</label><div class="cpw"><input type="color" id="picker-color_primary_dark" onchange="syncColor('color_primary_dark',this.value)"><input type="text" id="sty-color_primary_dark" oninput="syncPicker('color_primary_dark',this.value)"></div></div>
+<div class="fgr"><label>Color de Acento (Dorado)</label><div class="cpw"><input type="color" id="picker-color_accent" onchange="syncColor('color_accent',this.value)"><input type="text" id="sty-color_accent" oninput="syncPicker('color_accent',this.value)"></div></div>
+<div class="fgr"><label>Color de Fondo (Crema)</label><div class="cpw"><input type="color" id="picker-color_bg" onchange="syncColor('color_bg',this.value)"><input type="text" id="sty-color_bg" oninput="syncPicker('color_bg',this.value)"></div></div>
+</div></div>
+<div class="fc" style="background:#fafafa;border:1px dashed #d1d5db"><div class="fch"><h3>Vista Previa en Vivo</h3><p>Los cambios se reflejan en tiempo real</p></div>
+<div id="lpb" style="padding:1.8rem;background:#fff;border-radius:12px;border:1px solid #e5e7eb;">
+<h2 id="lph" style="color:#73030D;margin-bottom:.8rem;font-size:2.2rem;line-height:1.2;">Hacemos realidad tus proyectos con excelencia</h2>
+<p id="lpb2" style="color:#4b5563;font-size:1rem;line-height:1.6;max-width:650px;">Somos una empresa de construcción comprometida con la calidad y la innovación en Paraguay.</p>
+<div style="margin-top:1.2rem;"><span id="lpbadge" style="display:inline-block;padding:.4rem 1rem;background:#BF0413;color:#F2DDB6;border-radius:50px;font-weight:600;font-size:.85rem;">Botón de Muestra</span></div>
+</div></div>
+<div class="save-row"><button type="submit" class="btn bp">💾 Guardar Estilo Global</button></div>
+</form>
+</div>
+
+<!-- IMAGENES GLOBALES -->
+<div class="view" id="view-global-images">
+<div class="smh"><div class="icon" style="font-size:1.1rem">🖼️</div><div><h2>Imágenes Globales</h2><p>Logo del sitio y otras imágenes globales</p></div></div>
+<div class="fc"><div class="ig"><div class="ic"><h4>Logo de NAD Constructora</h4><p>Se visualiza en el menú y en el pie de página</p><div class="ipb"><img id="img-prev-logo" src="/nad.png" alt="Logo"></div><button class="btn bs" onclick="ua('logo')">Subir nuevo logo</button><input type="file" id="file-logo" accept="image/*" style="display:none" onchange="uploadSiteAsset('logo',this)"></div></div></div>
+</div>
+
+<!-- CONFIGURACION -->
+<div class="view" id="view-settings">
+<div class="fc" style="max-width:480px"><div class="fch"><h3>Seguridad de la Cuenta</h3><p>Cambiar la contraseña de acceso al panel</p></div>
+<div class="alert as" id="pass-ok">Contraseña actualizada correctamente</div>
+<div class="alert ae" id="pass-err"></div>
+<div class="fgr" style="margin-bottom:1rem"><label>Contraseña actual</label><input type="password" id="pass-current" placeholder=""></div>
+<div class="fgr" style="margin-bottom:1rem"><label>Nueva contraseña</label><input type="password" id="pass-new" placeholder="Mínimo 6 caracteres"></div>
+<div class="fgr" style="margin-bottom:1.5rem"><label>Confirmar nueva contraseña</label><input type="password" id="pass-confirm"></div>
+<button class="btn bp" onclick="changePassword()">Guardar nueva contraseña</button>
+</div>
+<div class="fc" style="max-width:480px;margin-top:1.5rem"><div class="fch"><h3>Copia de Seguridad</h3><p>Descarga un respaldo completo de tus datos</p></div>
+<a href="#" id="btn-backup-db" class="btn bs" style="text-decoration:none;"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>Descargar Copia de Seguridad (.db)</a>
+</div>
+</div>
+
+</div></div>
+
+<!-- Modal Proyecto -->
+<div class="mo" id="project-modal">
+<div class="modal"><div class="mh"><h2 id="modal-title">Nuevo proyecto</h2><button class="cb" onclick="closeModal()">&times;</button></div>
+<div class="mb">
+<div class="alert ae" id="form-err"></div>
+<form id="project-form" class="fg">
+<input type="hidden" id="edit-id">
+<div class="fgr full"><label>Título del proyecto</label><input type="text" id="f-title" placeholder="Ej: Edificio Comercial Centro" required></div>
+<div class="fgr"><label>Categoría</label><input type="text" id="f-category" placeholder="Ej: Construcción" required></div>
+<div class="fgr"><label>Año</label><input type="number" id="f-year" min="1990" max="2099" placeholder="2025" required></div>
+<div class="fgr"><label>Ubicación</label><input type="text" id="f-location" placeholder="Ej: Asunción, Paraguay" required></div>
+<div class="fgr"><label>Tipo</label><select id="f-featured"><option value="1">Destacado (Portada)</option><option value="0">Más proyectos</option></select></div>
+<div class="fgr full"><label>Estado de Obra</label><select id="f-status"><option value="Terminado">Terminado (Historial)</option><option value="En Curso">Activo (En Curso)</option></select></div>
+<div class="fgr full"><label>Visibilidad</label><select id="f-visible"><option value="1">Visible para el público</option><option value="0">Oculto (Borrador)</option></select></div>
+<div class="fgr full"><label>Descripción completa</label><textarea id="f-desc" placeholder="Describe los detalles..." required></textarea></div>
+<div class="fgr full"><label>Imagen o Video de Portada <span id="img-required" style="color:var(--primary)">*</span></label>
+<div class="ua" id="upload-area" onclick="document.getElementById('f-file').click()"><svg width="34" height="34" viewBox="0 0 24 24" fill="none" stroke="#9ca3af" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg><p>Hacé clic o arrastrá una portada aquí</p><p style="font-size:.75rem;margin-top:.2rem;color:#9ca3af">JPG, PNG, WEBP, MP4 - Máx 20MB</p></div>
+<input type="file" id="f-file" accept="image/*,video/*" style="display:none" onchange="previewFile(this)">
+<img id="preview-img" class="pimg" src="" alt="" style="display:none"></div>
+<div class="fgr full"><label>Galería Adicional</label>
+<div class="ua" onclick="document.getElementById('f-extra-media').click()"><svg width="34" height="34" viewBox="0 0 24 24" fill="none" stroke="#9ca3af" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg><p>Seleccionar múltiples fotos o videos</p></div>
+<input type="file" id="f-extra-media" accept="image/*,video/*" multiple style="display:none" onchange="previewExtraMedia(this)">
+<div id="extra-media-preview" style="display:flex;flex-wrap:wrap;gap:10px;margin-top:10px;"></div></div>
+</form></div>
+<div class="mf"><button class="btn bs" onclick="closeModal()">Cancelar</button><button class="btn bp" onclick="saveProject()">Guardar proyecto</button></div>
+</div></div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+const ps=window.location.pathname.split('/').filter(p=>p&&p!=='index.html');
+const adm=ps[0]||'gestion-nad-2026';
+const PANEL='/'+adm,API=PANEL+'/api';
+const le=document.getElementById('logout-btn');if(le)le.href=PANEL+'/logout';
+const be=document.getElementById('btn-backup-db');if(be)be.href=API+'/backup-db';
+const SS_SECTIONS={navbar:['bg_color','text_color','link_hover_color','font_heading','font_body','heading_size','body_size'],hero:['text_color','overlay_opacity','heading_color','font_heading','font_body','heading_size','body_size'],stats:['bg_color','text_color','heading_color','font_heading','font_body','heading_size','body_size'],services:['bg_color','text_color','heading_color','card_bg','card_border_color','font_heading','font_body','heading_size','body_size','featured_card'],about:['bg_color','text_color','heading_color','font_heading','font_body','heading_size','body_size'],projects:['bg_color','text_color','heading_color','card_bg','font_heading','font_body','heading_size','body_size'],video:['bg_color','text_color','heading_color','font_heading','font_body','heading_size','body_size'],clients:['bg_color','text_color','heading_color','font_heading','font_body','heading_size','body_size'],cta:['text_color','overlay_opacity','heading_color','font_heading','font_body','heading_size','body_size'],footer:['bg_color','text_color','link_hover_color','heading_color','font_heading','font_body','heading_size','body_size']};
+let projects=[],siteContent=null;
+const VT={dashboard:'Dashboard',projects:'Gestión de Proyectos','sec-navbar':'Menú Superior','sec-hero':'Hero / Portada','sec-stats':'Estadísticas','sec-services':'Servicios','sec-about':'Nosotros','sec-projects':'Sección Proyectos','sec-video':'Video Institucional','sec-clients':'Nuestros Clientes','sec-contact':'CTA & Contacto','global-styles':'Estilo Global','global-images':'Imágenes Globales',settings:'Configuración'};
+function showToast(m,t='success'){const el=document.getElementById('toast');el.textContent=m;el.className='toast show '+t;setTimeout(()=>{el.className='toast';},3200);}
+function showView(n){document.querySelectorAll('.view').forEach(v=>v.classList.remove('active'));document.querySelectorAll('.ni').forEach(x=>x.classList.remove('active'));const tv=document.getElementById('view-'+n);const tn=document.getElementById('nav-'+n);if(tv)tv.classList.add('active');if(tn)tn.classList.add('active');document.getElementById('page-title').textContent=VT[n]||'Panel Admin';document.getElementById('sidebar').classList.remove('open');}
+function mt(s,t,btn){btn.closest('.mtabs').querySelectorAll('.mtb').forEach(b=>b.classList.remove('active'));btn.classList.add('active');document.querySelectorAll('[id^="'+s+'-"]').forEach(p=>{if(p.classList.contains('mtp'))p.classList.remove('active');});const p=document.getElementById(s+'-'+t);if(p)p.classList.add('active');}
+async function loadProjects(){try{const r=await fetch(API+'/projects');if(!r.ok)return;projects=await r.json();renderTables();renderStats();if(siteContent&&siteContent.section_styles){
+  for(const[sec,fields]of Object.entries(SS_SECTIONS)){
+    const sd=siteContent.section_styles[sec]||{};
+    for(const f of fields){
+      const v=sd[f];if(v===undefined)continue;
+      const el=document.getElementById('ss-'+sec+'-'+f);if(el)el.value=v;
+      const pk=document.getElementById('ss-picker-'+sec+'-'+f);if(pk&&/^#/.test(v))pk.value=v;
+    }
+  }
+}
+}catch(e){console.error(e);}}
+function renderStats(){document.getElementById('stat-total').textContent=projects.length;document.getElementById('stat-featured').textContent=projects.filter(p=>p.featured===1).length;document.getElementById('stat-extra').textContent=projects.filter(p=>p.featured===0).length;document.getElementById('stat-visible').textContent=projects.filter(p=>p.visible===1).length;}
+let cs='';
+function filterProjects(q){cs=(q||'').trim().toLowerCase();renderTables();}
+function renderTables(){
+const editIcon = `<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="vertical-align:middle"><path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"/></svg>`;
+const trashIcon = `<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="vertical-align:middle"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg>`;
+const cr=(p,f=false)=>`<tr><td><img src="${p.image}" alt="${p.title}" onerror="this.src='/nad.png'"></td><td><strong>${p.title}</strong></td>${f?`<td>${p.category}</td>`:''}<td><span class="bf ${p.featured?'if':'nf'}" onclick="toggleFeatured(${p.id})">${p.featured?'Destacado':'Más proyectos'}</span></td><td><span class="by">${p.year}</span></td><td><span class="bv ${p.visible?'on':'off'}" onclick="toggleVisible(${p.id})">${p.visible?'Visible':'Oculto'}</span></td><td><div class="acts"><button class="bi be" title="Editar" onclick="openEditModal(${p.id})">${editIcon}</button><button class="bi bd" title="Eliminar" onclick="deleteProject(${p.id})">${trashIcon}</button></div></td></tr>`;
+const emp='<tr><td colspan="7"><div class="empty"><p>No se encontraron proyectos</p></div></td></tr>';
+document.getElementById('dash-tbody').innerHTML=projects.slice(0,5).map(p=>cr(p)).join('')||emp;
+const fl=cs?projects.filter(p=>(p.title||'').toLowerCase().includes(cs)||(p.category||'').toLowerCase().includes(cs)||String(p.year).includes(cs)):projects;
+document.getElementById('proj-tbody').innerHTML=fl.map(p=>cr(p,true)).join('')||emp;
+}
+function clearProjectErrors(){
+    document.querySelectorAll('#project-modal .input-error').forEach(el=>el.classList.remove('input-error'));
+    const err=document.getElementById('form-err');
+    if(err)err.classList.remove('show');
+}
+function openNewModal(){
+    clearProjectErrors();
+    document.getElementById('modal-title').textContent='Nuevo proyecto';
+    document.getElementById('edit-id').value='';
+    document.getElementById('project-form').reset();
+    document.getElementById('f-featured').value='1';
+    document.getElementById('f-visible').value='1';
+    document.getElementById('f-status').value='Terminado';
+    document.getElementById('preview-img').style.display='none';
+    document.getElementById('img-required').style.display='inline';
+    window.currentKeptMedia=[];
+    document.getElementById('extra-media-preview').innerHTML='';
+    document.getElementById('project-modal').classList.add('open');
+}
+function openEditModal(id){
+    clearProjectErrors();
+    const p=projects.find(x=>x.id===id);
+    if(!p)return;
+    document.getElementById('modal-title').textContent='Editar proyecto';
+    document.getElementById('edit-id').value=p.id;
+    document.getElementById('f-title').value=p.title||'';
+    document.getElementById('f-category').value=p.category||'';
+    document.getElementById('f-year').value=p.year||'';
+    document.getElementById('f-location').value=p.location||'';
+    document.getElementById('f-featured').value=p.featured!==undefined?String(p.featured):'1';
+    document.getElementById('f-visible').value=String(p.visible!==undefined?p.visible:'1');
+    document.getElementById('f-status').value=p.status||'Terminado';
+    document.getElementById('f-desc').value=p.description||'';
+    document.getElementById('img-required').style.display='none';
+    const pv=document.getElementById('preview-img');
+    pv.src=p.image;
+    pv.style.display='block';
+    window.currentKeptMedia=[];
+    try{if(p.extra_media&&p.extra_media.length>2)window.currentKeptMedia=JSON.parse(p.extra_media);}catch(e){}
+    renderKeptMedia();
+    document.getElementById('f-extra-media').value='';
+    document.getElementById('f-file').value='';
+    document.getElementById('project-modal').classList.add('open');
+}
+function closeModal(){
+    clearProjectErrors();
+    document.getElementById('project-modal').classList.remove('open');
+}
+function addVideoRow(url=''){const list=document.getElementById('video-urls-list');if(!list)return;const row=document.createElement('div');row.style.cssText='display:flex;gap:10px;';row.className='video-url-row';const inp=document.createElement('input');inp.type='text';inp.placeholder='https://youtube.com/... o /uploads/...';inp.style.flex='1';inp.value=url;const del=document.createElement('button');del.type='button';del.className='btn bs';del.style.padding='0 15px';del.textContent='✕';del.onclick=()=>{deleteAsset(inp.value);row.remove();};row.appendChild(inp);row.appendChild(del);list.appendChild(row);}
+function previewFile(input){const f=input.files[0];if(!f)return;document.getElementById('upload-area')?.classList.remove('input-error');const pv=document.getElementById('preview-img');if(f.type.startsWith('video/')){pv.src='';pv.style.display='none';}else{const r=new FileReader();r.onload=e=>{pv.src=e.target.result;pv.style.display='block';};r.readAsDataURL(f);}}
+function renderKeptMedia(){const c=document.getElementById('extra-media-preview');c.innerHTML='';(window.currentKeptMedia||[]).forEach((url,i)=>{const w=document.createElement('div');w.style.cssText='position:relative;width:80px;height:80px;';w.innerHTML=`<img src="${url}" style="width:100%;height:100%;object-fit:cover;border-radius:8px;"><button type="button" style="position:absolute;top:-5px;right:-5px;background:red;color:white;border-radius:50%;width:20px;height:20px;border:none;cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:12px;" onclick="removeKeptMedia(${i})">✕</button>`;c.appendChild(w);});}
+function removeKeptMedia(i){window.currentKeptMedia.splice(i,1);renderKeptMedia();}
+function previewExtraMedia(input){renderKeptMedia();const c=document.getElementById('extra-media-preview');if(input.files)Array.from(input.files).forEach(f=>{const r=new FileReader();r.onload=e=>{const w=document.createElement('div');w.style.cssText='width:80px;height:80px;';w.innerHTML=`<img src="${e.target.result}" style="width:100%;height:100%;object-fit:cover;border-radius:8px;">`;c.appendChild(w);};if(f.type.startsWith('image/'))r.readAsDataURL(f);});}
+async function saveProject(){
+    const id=document.getElementById('edit-id').value;
+    const err=document.getElementById('form-err');
+    clearProjectErrors();
+
+    const titleEl=document.getElementById('f-title');
+    const catEl=document.getElementById('f-category');
+    const yrEl=document.getElementById('f-year');
+    const locEl=document.getElementById('f-location');
+    const descEl=document.getElementById('f-desc');
+    const fileEl=document.getElementById('f-file');
+    const uploadArea=document.getElementById('upload-area');
+
+    const title=titleEl.value.trim();
+    const cat=catEl.value.trim();
+    const yr=yrEl.value.trim();
+    const loc=locEl.value.trim();
+    const feat=document.getElementById('f-featured').value;
+    const vis=document.getElementById('f-visible').value;
+    const stat=document.getElementById('f-status').value;
+    const desc=descEl.value.trim();
+    const file=fileEl.files[0];
+
+    const missing=[];
+    if(!title){titleEl.classList.add('input-error');missing.push('Título del proyecto');}
+    if(!cat){catEl.classList.add('input-error');missing.push('Categoría');}
+    if(!yr){yrEl.classList.add('input-error');missing.push('Año');}
+    if(!loc){locEl.classList.add('input-error');missing.push('Ubicación');}
+    if(!desc){descEl.classList.add('input-error');missing.push('Descripción completa');}
+    if(!id&&!file){uploadArea.classList.add('input-error');missing.push('Imagen o Video de Portada');}
+
+    if(missing.length>0){
+        err.innerHTML=`<strong>Por favor completá los campos en rojo:</strong><div style="margin-top:0.3rem;font-size:0.85rem;">&bull; `+missing.join('<br>&bull; ')+`</div>`;
+        err.classList.add('show');
+        const firstErr=document.querySelector('#project-modal .input-error');
+        if(firstErr){
+            firstErr.scrollIntoView({behavior:'smooth',block:'center'});
+            if(typeof firstErr.focus==='function'&&firstErr.tagName!=='DIV')firstErr.focus();
+        }
+        return;
+    }
+
+    const sb=document.querySelector('#project-modal .mf .bp');
+    if(sb){sb.disabled=true;sb.textContent='Guardando...';}
+    const fd=new FormData();
+    fd.append('title',title);
+    fd.append('category',cat);
+    fd.append('year',yr);
+    fd.append('location',loc);
+    fd.append('featured',feat);
+    fd.append('visible',vis);
+    fd.append('status',stat);
+    fd.append('description',desc);
+    if(file)fd.append('image',file);
+    if(id)fd.append('kept_extra_media',JSON.stringify(window.currentKeptMedia||[]));
+    const ef=document.getElementById('f-extra-media').files;
+    if(ef)Array.from(ef).forEach(f=>fd.append('extra_media',f));
+    try{
+        const url=id?`${API}/projects/${id}`:`${API}/projects`;
+        const method=id?'PUT':'POST';
+        const res=await fetch(url,{method,body:fd});
+        const data=await res.json().catch(()=>({}));
+        if(!res.ok){
+            err.textContent=data.error||'Error al guardar';
+            err.classList.add('show');
+            return;
+        }
+        closeModal();
+        showToast(id?'Proyecto actualizado':'Proyecto creado');
+        loadProjects();
+    }catch(e){
+        err.textContent='Error de conexión';
+        err.classList.add('show');
+    }finally{
+        if(sb){sb.disabled=false;sb.textContent='Guardar proyecto';}
+    }
+}
+async function deleteProject(id){if(!confirm('¿Eliminar proyecto permanentemente?'))return;try{const r=await fetch(`${API}/projects/${id}`,{method:'DELETE'});const d=await r.json().catch(()=>({}));if(!r.ok){showToast(d.error||'Error','error');return;}showToast('Proyecto eliminado');loadProjects();}catch(e){showToast('Error','error');}}
+async function toggleVisible(id){try{await fetch(`${API}/projects/${id}/toggle`,{method:'PATCH'});loadProjects();}catch(e){}}
+async function toggleFeatured(id){try{const r=await fetch(`${API}/projects/${id}/toggle-featured`,{method:'PATCH'});if(r.ok){showToast('Clasificación actualizada');loadProjects();}}catch(e){}}
+async function loadCmsContent(){try{const res=await fetch(API+'/content');if(!res.ok)return;siteContent=await res.json();if(!siteContent)return;
+if(siteContent.texts)for(const[k,v]of Object.entries(siteContent.texts)){const el=document.getElementById('txt-'+k);if(el)el.value=v;}
+if(siteContent.styles)for(const[k,v]of Object.entries(siteContent.styles)){const el=document.getElementById('sty-'+k);if(el)el.value=v;const pk=document.getElementById('picker-'+k);if(pk)pk.value=v;}
+if(siteContent.images){const si=(id,src)=>{const el=document.getElementById(id);if(el&&src)el.src=src;};si('img-prev-logo',siteContent.images.logo);si('img-prev-hero_bg',siteContent.images.hero_bg);si('img-prev-about_image',siteContent.images.about_image);si('img-prev-director_image',siteContent.images.director_image);si('img-prev-cta_bg',siteContent.images.cta_bg);if(siteContent.images.hero_slider)renderHeroSliderPreviews();if(siteContent.images.clients_logos)renderClientsLogosPreviews();}
+if(siteContent.video){const vt=document.getElementById('vid-title');if(vt)vt.value=siteContent.video.title||'';const vd=document.getElementById('vid-description');if(vd)vd.value=siteContent.video.description||'';const ul=document.getElementById('video-urls-list');if(ul){ul.innerHTML='';let urls=siteContent.video.urls||[];if(siteContent.video.src&&!urls.length)urls=[siteContent.video.src];urls.forEach(u=>addVideoRow(u));if(!urls.length)addVideoRow();}}
+const cc=siteContent.clients_carousel||{};const sv=(id,v)=>{const el=document.getElementById(id);if(el&&v!==undefined)el.value=v;};sv('cc-title',cc.title);sv('cc-title_color',cc.title_color||'#73030D');sv('cc-bg_color',cc.bg_color||'#F2DDB6');sv('cc-title_size',cc.title_size||'2.5rem');sv('cc-logo_height',cc.logo_height||'80px');sv('cc-logo_color_mode',cc.logo_color_mode||'grayscale');sv('cc-speed',cc.speed?String(cc.speed):'20');sv('cc-gap',cc.gap||'3rem');sv('cc-padding',cc.padding||'4rem');
+const tcp=document.getElementById('cc-picker-title_color');if(tcp)tcp.value=cc.title_color||'#73030D';
+const bcp=document.getElementById('cc-picker-bg_color');if(bcp)bcp.value=cc.bg_color||'#F2DDB6';
+updateLP();['sty-font_heading','sty-font_body','sty-hero_title_size','sty-h2_size','sty-body_font_size','sty-color_primary','sty-color_primary_dark','sty-color_accent','sty-color_bg'].forEach(id=>{const el=document.getElementById(id);if(el){el.addEventListener('input',updateLP);el.addEventListener('change',updateLP);}});
+if(siteContent.section_styles){
+  for(const[sec,fields]of Object.entries(SS_SECTIONS)){
+    const sd=siteContent.section_styles[sec]||{};
+    for(const f of fields){
+      const v=sd[f];if(v===undefined)continue;
+      const el=document.getElementById('ss-'+sec+'-'+f);if(el)el.value=v;
+      const pk=document.getElementById('ss-picker-'+sec+'-'+f);if(pk&&/^#/.test(v))pk.value=v;
+    }
+  }
+}
+}catch(e){console.error(e);}}
+async function saveSection(sec){if(!siteContent)siteContent={texts:{},styles:{},images:{},video:{},clients_carousel:{}};if(!siteContent.texts)siteContent.texts={};if(!siteContent.video)siteContent.video={};if(!siteContent.clients_carousel)siteContent.clients_carousel={};
+document.querySelectorAll('[id^="txt-"]').forEach(inp=>{siteContent.texts[inp.id.replace('txt-','')]=inp.value;});
+if(sec==='video'){const vt=document.getElementById('vid-title');if(vt)siteContent.video.title=vt.value;const vd=document.getElementById('vid-description');if(vd)siteContent.video.description=vd.value;siteContent.video.urls=Array.from(document.querySelectorAll('.video-url-row input')).map(i=>i.value).filter(v=>v.trim()!=='');}
+
+if(!siteContent.section_styles)siteContent.section_styles={};
+for(const[sn,fields]of Object.entries(SS_SECTIONS)){
+  if(!siteContent.section_styles[sn])siteContent.section_styles[sn]={};
+  for(const f of fields){
+    const el=document.getElementById('ss-'+sn+'-'+f);
+    if(el&&el.value)siteContent.section_styles[sn][f]=el.value;
+  }
+}
+if(sec==='clients'){const gv=id=>{const el=document.getElementById(id);return el?el.value:undefined;};siteContent.clients_carousel={title:gv('cc-title'),title_color:gv('cc-title_color'),bg_color:gv('cc-bg_color'),title_size:gv('cc-title_size'),logo_height:gv('cc-logo_height'),logo_color_mode:gv('cc-logo_color_mode'),speed:parseInt(gv('cc-speed'))||20,gap:gv('cc-gap'),padding:gv('cc-padding')};}
+try{const res=await fetch(API+'/content',{method:'PUT',headers:{'Content-Type':'application/json'},body:JSON.stringify(siteContent)});const data=await res.json().catch(()=>({}));if(res.ok)showToast('Cambios guardados correctamente');else showToast(data.error||'Error al guardar','error');}catch(e){showToast('Error de conexión','error');}}
+function ssSync(sec, field, val) {
+  const pk = document.getElementById('ss-picker-'+sec+'-'+field);
+  if (pk && /^#[0-9A-Fa-f]{3,6}$/.test(val)) {
+    pk.value = val;
+  }
+}
+
+function syncColor(k,h){document.getElementById('sty-'+k).value=h;updateLP();}
+function syncPicker(k,h){if(/^#[0-9A-Fa-f]{6}$/.test(h)){document.getElementById('picker-'+k).value=h;updateLP();}}
+function syncCcPicker(k,h){if(/^#[0-9A-Fa-f]{3,6}$/.test(h)){const p=document.getElementById('cc-picker-'+k);if(p)p.value=h;}}
+function updateLP(){const hf=document.getElementById('sty-font_heading')?.value||'Outfit';const bf=document.getElementById('sty-font_body')?.value||'Inter';const h2s=document.getElementById('sty-h2_size')?.value||'2.2rem';const bs=document.getElementById('sty-body_font_size')?.value||'1rem';const pri=document.getElementById('sty-color_primary')?.value||'#BF0413';const prd=document.getElementById('sty-color_primary_dark')?.value||'#73030D';const bg=document.getElementById('sty-color_bg')?.value||'#F2DDB6';const h=document.getElementById('lph');const p2=document.getElementById('lpb2');const b=document.getElementById('lpbadge');if(h){h.style.fontFamily='"'+hf+'",sans-serif';h.style.fontSize=h2s;h.style.color=prd;}if(p2){p2.style.fontFamily='"'+bf+'",sans-serif';p2.style.fontSize=bs;}if(b){b.style.background=pri;b.style.color=bg;}}
+async function saveStyles(){const btn=document.querySelector('#cms-styles-form button[type="submit"]');if(btn){btn.disabled=true;btn.textContent='Guardando...';}if(!siteContent||!siteContent.styles){try{const r=await fetch(API+'/content');if(r.ok)siteContent=await r.json();}catch(e){}}if(!siteContent)siteContent={texts:{},styles:{},images:{}};if(!siteContent.styles)siteContent.styles={};document.querySelectorAll('[id^="sty-"]').forEach(el=>{siteContent.styles[el.id.replace('sty-','')]=el.value;});try{const res=await fetch(API+'/content',{method:'PUT',headers:{'Content-Type':'application/json'},body:JSON.stringify(siteContent)});const d=await res.json().catch(()=>({}));if(res.ok)showToast('Diseño, fuentes y colores guardados');else showToast(d.error||'Error','error');}catch(e){showToast('Error','error');}finally{if(btn){btn.disabled=false;btn.textContent='Guardar Estilo Global';}}}
+function ua(t){document.getElementById('file-'+t).click();}
+// Borra en el servidor un archivo de /uploads que ya no se usa (evita huérfanos en disco)
+async function deleteAsset(url){if(!url||!url.startsWith('/uploads/'))return;try{await fetch(API+'/delete-asset',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({url})});}catch(e){}}
+async function uploadSiteAsset(t,input){const f=input.files[0];if(!f)return;const fd=new FormData();fd.append('asset',f);try{showToast('Subiendo imagen...');const res=await fetch(API+'/upload-asset',{method:'POST',body:fd});const d=await res.json().catch(()=>({}));if(!res.ok)throw new Error(d.error||'Error');const url=d.url;const oldUrl=siteContent?.images?.[t];const pv=document.getElementById('img-prev-'+t);if(pv)pv.src=url;const pr=await fetch(API+'/content',{method:'PUT',headers:{'Content-Type':'application/json'},body:JSON.stringify({images:{[t]:url}})});if(!pr.ok)throw new Error('Error guardando');if(siteContent&&siteContent.images)siteContent.images[t]=url;if(oldUrl&&oldUrl!==url)deleteAsset(oldUrl);showToast('Imagen actualizada');}catch(e){showToast(e.message||'Error','error');}finally{input.value='';}}
+function renderHeroSliderPreviews(){const c=document.getElementById('hero-slider-previews');if(!c)return;c.innerHTML='';const arr=(siteContent?.images?.hero_slider)||[];arr.forEach((url,i)=>{const w=document.createElement('div');w.style.cssText='position:relative;width:100px;height:70px;';w.innerHTML=`<img src="${url}" style="width:100%;height:100%;object-fit:cover;border-radius:6px;border:1px solid #ccc;"><button class="bi bd" style="position:absolute;top:-5px;right:-5px;width:20px;height:20px;border-radius:50%;font-size:12px;" onclick="removeHeroSliderImage(${i})">✕</button>`;c.appendChild(w);});}
+async function removeHeroSliderImage(i){if(!siteContent?.images?.hero_slider)return;const [url]=siteContent.images.hero_slider.splice(i,1);renderHeroSliderPreviews();await saveImagesContent();deleteAsset(url);}
+async function saveImagesContent(){try{await fetch(API+'/content',{method:'PUT',headers:{'Content-Type':'application/json'},body:JSON.stringify({images:siteContent.images})});}catch(e){}}
+async function uploadHeroSliderAsset(input){if(!input.files?.length)return;showToast('Subiendo imágenes...');if(!siteContent)siteContent={};if(!siteContent.images)siteContent.images={};if(!siteContent.images.hero_slider)siteContent.images.hero_slider=[];let err=false;for(const f of input.files){const fd=new FormData();fd.append('asset',f);try{const r=await fetch(API+'/upload-asset',{method:'POST',body:fd});const d=await r.json();if(r.ok)siteContent.images.hero_slider.push(d.url);else err=true;}catch(e){err=true;}}input.value='';renderHeroSliderPreviews();await saveImagesContent();showToast(err?'Algunas imágenes no se subieron':'Imágenes agregadas al Slider',err?'error':'success');}
+function renderClientsLogosPreviews(){const c=document.getElementById('clients-logos-previews');if(!c)return;c.innerHTML='';const arr=(siteContent?.images?.clients_logos)||[];arr.forEach((url,i)=>{const w=document.createElement('div');w.style.cssText='position:relative;width:80px;height:80px;';w.innerHTML=`<img src="${url}" style="width:100%;height:100%;object-fit:contain;border-radius:6px;border:1px solid #ccc;background:#f9f9f9;padding:5px;"><button class="bi bd" style="position:absolute;top:-5px;right:-5px;width:20px;height:20px;border-radius:50%;font-size:12px;" onclick="removeClientsLogo(${i})">✕</button>`;c.appendChild(w);});}
+async function removeClientsLogo(i){if(!siteContent?.images?.clients_logos)return;const [url]=siteContent.images.clients_logos.splice(i,1);renderClientsLogosPreviews();await saveImagesContent();deleteAsset(url);}
+async function uploadClientsLogosAsset(input){if(!input.files?.length)return;showToast('Subiendo logos...');if(!siteContent)siteContent={};if(!siteContent.images)siteContent.images={};if(!siteContent.images.clients_logos)siteContent.images.clients_logos=[];let err=false;for(const f of input.files){const fd=new FormData();fd.append('asset',f);try{const r=await fetch(API+'/upload-asset',{method:'POST',body:fd});const d=await r.json();if(r.ok)siteContent.images.clients_logos.push(d.url);else err=true;}catch(e){err=true;}}input.value='';renderClientsLogosPreviews();await saveImagesContent();showToast(err?'Algunos logos no se subieron':'Logos agregados',err?'error':'success');}
+async function uploadVideoAsset(input){const f=input.files[0];if(!f)return;const fd=new FormData();fd.append('asset',f);try{showToast('Subiendo archivo...');const res=await fetch(API+'/upload-asset',{method:'POST',body:fd});const d=await res.json().catch(()=>({}));if(!res.ok)throw new Error(d.error||'Error');addVideoRow(d.url);const urls=Array.from(document.querySelectorAll('.video-url-row input')).map(i=>i.value).filter(v=>v.trim()!=='');await fetch(API+'/content',{method:'PUT',headers:{'Content-Type':'application/json'},body:JSON.stringify({video:{urls}})});showToast('Archivo subido y agregado');}catch(e){showToast(e.message||'Error','error');}finally{input.value='';}}
+async function changePassword(){const cur=document.getElementById('pass-current').value;const np=document.getElementById('pass-new').value;const cn=document.getElementById('pass-confirm').value;const err=document.getElementById('pass-err');const ok=document.getElementById('pass-ok');err.classList.remove('show');ok.classList.remove('show');if(!cur){err.textContent='Ingresá tu contraseña actual';err.classList.add('show');return;}if(np.length<6){err.textContent='La contraseña debe tener al menos 6 caracteres';err.classList.add('show');return;}if(np!==cn){err.textContent='Las contraseñas no coinciden';err.classList.add('show');return;}try{const res=await fetch(`${API}/change-password`,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({current:cur,newPass:np})});const d=await res.json().catch(()=>({}));if(!res.ok){err.textContent=d.error||'Error';err.classList.add('show');}else{ok.classList.add('show');['pass-current','pass-new','pass-confirm'].forEach(id=>document.getElementById(id).value='');showToast('Contraseña actualizada');}}catch(e){err.textContent='Error de conexión';err.classList.add('show');}}
+const uploadArea=document.getElementById('upload-area');
+if(uploadArea){uploadArea.addEventListener('dragover',e=>{e.preventDefault();uploadArea.classList.add('drag');});uploadArea.addEventListener('dragleave',()=>uploadArea.classList.remove('drag'));uploadArea.addEventListener('drop',e=>{e.preventDefault();uploadArea.classList.remove('drag');const f=e.dataTransfer.files[0];if(f){const inp=document.getElementById('f-file');const dt=new DataTransfer();dt.items.add(f);inp.files=dt.files;previewFile(inp);}});}
+document.addEventListener('keydown',e=>{if(e.key==='Escape')closeModal();});
+const mover=document.getElementById('project-modal');if(mover)mover.addEventListener('click',e=>{if(e.target===mover)closeModal();});
+['f-title','f-category','f-year','f-location','f-desc'].forEach(id=>{
+    const el=document.getElementById(id);
+    if(el)el.addEventListener('input',()=>el.classList.remove('input-error'));
+});
+const ffEl=document.getElementById('f-file');
+if(ffEl)ffEl.addEventListener('change',()=>document.getElementById('upload-area')?.classList.remove('input-error'));
+loadProjects();loadCmsContent();
+</script>
+</body>
+</html>

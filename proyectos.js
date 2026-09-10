@@ -1,0 +1,364 @@
+// Archivo JS para la página de Proyectos
+
+document.addEventListener('DOMContentLoaded', () => {
+    safeCreateIcons();
+    loadSiteContent();
+    loadAndRenderProjects();
+    
+    // Header Scroll effect
+    window.addEventListener('scroll', () => {
+        const header = document.getElementById('header');
+        if (header) {
+            header.classList.toggle('scrolled', window.scrollY > 50);
+        }
+    });
+
+    const mobileMenuBtn = document.getElementById('mobile-menu-btn');
+    const mobileNav = document.getElementById('mobile-nav');
+    let menuOpen = false;
+    if (mobileMenuBtn) {
+        mobileMenuBtn.addEventListener('click', () => {
+            menuOpen = !menuOpen;
+            mobileNav.classList.toggle('open', menuOpen);
+            mobileMenuBtn.innerHTML = menuOpen ? '<i data-lucide="x"></i>' : '<i data-lucide="menu"></i>';
+            safeCreateIcons();
+        });
+    }
+});
+
+function safeCreateIcons() {
+    try {
+        if (typeof lucide !== 'undefined' && lucide && typeof lucide.createIcons === 'function') {
+            lucide.createIcons();
+        }
+    } catch (e) {}
+}
+
+async function loadSiteContent() {
+    try {
+        const res = await fetch('/api/content');
+        if (!res.ok) return;
+        const data = await res.json();
+        
+        // Aplicar estilos
+        if (data.styles) {
+            const root = document.documentElement;
+            const s = data.styles;
+            if (s.font_heading) {
+                if (s.font_heading === 'MADE TOMMY') {
+                    root.style.setProperty('--font-heading', '"MADE TOMMY", sans-serif');
+                } else {
+                    root.style.setProperty('--font-heading', `"${s.font_heading}", sans-serif`);
+                }
+            }
+            if (s.font_body) root.style.setProperty('--font-body', `"${s.font_body}", sans-serif`);
+            
+            if (s.color_primary) root.style.setProperty('--primary', s.color_primary);
+            if (s.color_primary_dark) root.style.setProperty('--primary-dark', s.color_primary_dark);
+            if (s.color_accent) root.style.setProperty('--accent', s.color_accent);
+            if (s.color_bg) root.style.setProperty('--bg-light', s.color_bg);
+        }
+        
+        // Logo
+        if (data.images && data.images.logo) {
+            const logo = document.getElementById('site-logo');
+            const fLogo = document.getElementById('cms-footer-logo');
+            if (logo) logo.src = data.images.logo;
+            if (fLogo) fLogo.src = data.images.logo;
+        }
+    } catch (e) {
+        console.error("Error cargando content:", e);
+    }
+}
+
+let loadedProjects = [];
+
+async function loadAndRenderProjects() {
+    try {
+        const res = await fetch('/api/projects');
+        if (!res.ok) throw new Error('Error en fetch: ' + res.status);
+        let projects = await res.json();
+        
+        // Filtrar solo los visibles
+        loadedProjects = Array.isArray(projects) ? projects.filter(p => p.visible === 1) : [];
+        
+        // Iniciar con 'todos' como pidió el usuario
+        const defaultFilter = 'todos';
+
+        // Actualizar botón activo en el header de filtros
+        document.querySelectorAll('.filter-btn').forEach(btn => {
+            const attr = btn.getAttribute('onclick') || '';
+            btn.classList.toggle('active', attr.includes(`'${defaultFilter}'`));
+        });
+
+        renderProjectsList(defaultFilter);
+    } catch(e) {
+        console.error('Error cargando proyectos:', e);
+        const container = document.getElementById('projects-container');
+        if (container) {
+            container.innerHTML = `<div style="text-align:center;padding:3rem 1rem;color:#dc2626;">
+                <i data-lucide="alert-circle" style="width:36px;height:36px;margin:0 auto 1rem;"></i>
+                <h3 style="margin-bottom:0.5rem;">Error al cargar los proyectos</h3>
+                <p style="color:#6b7280;font-size:0.95rem;">Por favor, recargá la página o intentá nuevamente en unos momentos.</p>
+            </div>`;
+            safeCreateIcons();
+        }
+    }
+}
+
+function filterProjectsView(type, btn) {
+    document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+    if (btn) {
+        btn.classList.add('active');
+    } else if (window.event && window.event.target) {
+        window.event.target.classList.add('active');
+    }
+    renderProjectsList(type);
+}
+
+function setViewMode(mode, btn) {
+    document.querySelectorAll('.view-btn').forEach(b => b.classList.remove('active'));
+    if (btn) btn.classList.add('active');
+    
+    const container = document.getElementById('projects-container');
+    if (mode === 'grid') {
+        container.classList.add('view-mode-grid');
+    } else {
+        container.classList.remove('view-mode-grid');
+    }
+    
+    // Forzar evento de resize para que Swiper actualice sus dimensiones
+    setTimeout(() => {
+        window.dispatchEvent(new Event('resize'));
+    }, 100);
+}
+
+function renderProjectsList(filterType) {
+    const container = document.getElementById('projects-container');
+    if (!container) return;
+    
+    let filtered = loadedProjects;
+    if (filterType === 'destacados') {
+        filtered = loadedProjects.filter(p => p.featured === 1);
+    } else if (filterType === 'construcciones') {
+        filtered = loadedProjects.filter(p => (p.category || '').toLowerCase().includes('construcción') || (p.category || '').toLowerCase().includes('construccion'));
+    }
+
+    if (filtered.length === 0) {
+        let msg = 'No se encontraron proyectos en esta categoría por el momento. Te invitamos a revisar más adelante.';
+        if (filterType === 'destacados') msg = 'No hay proyectos marcados como destacados en este momento.';
+        if (filterType === 'construcciones') msg = 'No hay obras de construcción actualmente.';
+        
+        container.innerHTML = `
+            <div class="no-projects fade-up visible">
+                <i data-lucide="folder-search"></i>
+                <h3>Sin proyectos</h3>
+                <p>${msg}</p>
+            </div>`;
+        safeCreateIcons();
+        return;
+    }
+
+        let html = '';
+
+        filtered.forEach((p, idx) => {
+            // Determine if we flip the layout
+            const isReverse = idx % 2 !== 0 ? 'reverse' : '';
+            
+            // Procesar media (portada + extras)
+            let allMedia = [p.image];
+            try {
+                if (p.extra_media && p.extra_media.length > 2) {
+                    const extra = JSON.parse(p.extra_media);
+                    allMedia = allMedia.concat(extra);
+                }
+            } catch(e) {}
+
+            // Generar Slides
+            let slidesHtml = '';
+            allMedia.forEach(url => {
+                const isVideo = /\.(mp4|webm|mov)$/i.test(url);
+                if (isVideo) {
+                    slidesHtml += `<div class="swiper-slide"><video src="${escapeHtml(url)}" controls loop muted playsinline></video></div>`;
+                } else {
+                    slidesHtml += `<div class="swiper-slide"><img src="${url}" alt="${escapeHtml(p.title)}" loading="lazy"></div>`;
+                }
+            });
+
+            const wMessage = encodeURIComponent(`Hola NAD, tengo un proyecto similar a "${p.title}" en mente. ¿Podemos agendar una reunión?`);
+
+            html += `
+                <div class="project-block ${isReverse}">
+                    <div class="project-media">
+                        <div class="swiper project-swiper" id="swiper-proj-${p.id}">
+                            <div class="swiper-wrapper">
+                                ${slidesHtml}
+                            </div>
+                            ${allMedia.length > 1 ? `
+                                <div class="swiper-pagination"></div>
+                                <div class="swiper-button-prev"></div>
+                                <div class="swiper-button-next"></div>
+                            ` : ''}
+                        </div>
+                    </div>
+                    <div class="project-info">
+                        <div class="project-meta">
+                            <span class="meta-badge"><i data-lucide="tag" style="width:14px;height:14px;"></i> ${escapeHtml(p.category)}</span>
+                            <span class="meta-badge"><i data-lucide="map-pin" style="width:14px;height:14px;"></i> ${escapeHtml(p.location)}</span>
+                        </div>
+                        <h2 class="project-title">${escapeHtml(p.title)}</h2>
+                        <p class="project-desc" style="display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; overflow: hidden;">${escapeHtml(p.description)}</p>
+                        
+                        <button onclick="openProjectModal(${p.id})" class="btn btn-primary" style="align-self:flex-start;">
+                            <i data-lucide="layout-grid"></i> Ver proyecto completo
+                        </button>
+                    </div>
+                </div>
+            `;
+        });
+
+        container.innerHTML = html;
+        safeCreateIcons();
+
+        // Inicializar Swipers de forma diferida para no bloquear el hilo principal
+        setTimeout(() => {
+            requestAnimationFrame(() => {
+                filtered.forEach(p => {
+                    const swiperEl = document.getElementById(`swiper-proj-${p.id}`);
+                    const firstSlide = swiperEl?.querySelector('.swiper-slide');
+                    if (swiperEl && firstSlide && firstSlide.nextElementSibling && typeof Swiper !== 'undefined') {
+                        new Swiper(swiperEl, {
+                            loop: true,
+                            pagination: {
+                                el: swiperEl.querySelector('.swiper-pagination'),
+                                clickable: true
+                            },
+                            navigation: {
+                                nextEl: swiperEl.querySelector('.swiper-button-next'),
+                                prevEl: swiperEl.querySelector('.swiper-button-prev'),
+                            },
+                            autoplay: {
+                                delay: 5000,
+                                disableOnInteraction: true,
+                            }
+                        });
+                    }
+                });
+            });
+        }, 50);
+}
+
+function escapeHtml(str) {
+    if (!str) return '';
+    return String(str)
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;')
+        .replace(/'/g, '&#039;');
+}
+
+// Lógica del Modal de Proyecto
+function openProjectModal(id) {
+    const p = loadedProjects.find(x => x.id === id);
+    if (!p) return;
+
+    document.getElementById('pm-header').style.backgroundImage = `url('${p.image}')`;
+    document.getElementById('pm-category').textContent = p.category;
+    document.getElementById('pm-year').textContent = p.year;
+    document.getElementById('pm-title').textContent = p.title;
+    document.getElementById('pm-location').textContent = p.location;
+    document.getElementById('pm-description').textContent = p.description; // usa pre-line
+
+    const wMessage = encodeURIComponent(`Hola NAD, tengo un proyecto similar a "${p.title}" en mente. ¿Podemos agendar una reunión?`);
+    
+    const pmShareBtn = document.getElementById('pm-share-btn');
+    if (pmShareBtn) {
+        pmShareBtn.onclick = () => {
+            if (navigator.share) {
+                navigator.share({
+                    title: p.title,
+                    url: window.location.origin + '/proyecto/' + p.id
+                }).catch(err => console.error(err));
+            } else {
+                navigator.clipboard.writeText(window.location.origin + '/proyecto/' + p.id);
+                alert('Enlace copiado al portapapeles');
+            }
+        };
+    }
+
+    document.getElementById('pm-cta-btn').href = `https://wa.me/595981076445?text=${wMessage}`;
+
+    // Galería extra
+    const galleryGrid = document.getElementById('pm-gallery-grid');
+    const gallerySection = document.getElementById('pm-gallery-section');
+    galleryGrid.innerHTML = '';
+    
+    let allMedia = [p.image];
+    try {
+        if (p.extra_media && p.extra_media.length > 2) {
+            const extra = JSON.parse(p.extra_media);
+            allMedia = allMedia.concat(extra);
+        }
+    } catch(e) {}
+
+    // Remover duplicados por si acaso
+    allMedia = [...new Set(allMedia)];
+
+    if (allMedia.length > 1) {
+        gallerySection.style.display = 'block';
+        allMedia.forEach(url => {
+            const safeUrl = escapeHtml(url);
+            const isVideo = /\.(mp4|webm|mov)$/i.test(url);
+            if (isVideo) {
+                galleryGrid.innerHTML += `<video src="${safeUrl}" controls class="pm-gallery-img"></video>`;
+            } else {
+                const img = document.createElement('img');
+                img.src = url;
+                img.alt = 'Galería';
+                img.className = 'pm-gallery-img';
+                img.loading = 'lazy';
+                img.addEventListener('click', () => openLightbox(url));
+                galleryGrid.appendChild(img);
+            }
+        });
+    } else {
+        gallerySection.style.display = 'none';
+    }
+
+    // Forzar renderizado previo al inicio de la animación para evitar saltos (layout thrashing)
+    const modal = document.getElementById('project-detail-modal');
+    modal.style.display = 'flex';
+    requestAnimationFrame(() => {
+        requestAnimationFrame(() => {
+            modal.classList.add('active');
+            document.body.style.overflow = 'hidden'; // prevenir scroll fondo
+        });
+    });
+}
+
+function closeProjectModal() {
+    const modal = document.getElementById('project-detail-modal');
+    modal.classList.remove('active');
+    document.body.style.overflow = '';
+    setTimeout(() => {
+        if (!modal.classList.contains('active')) {
+            modal.style.display = 'none';
+        }
+    }, 400); // coincide con la duración de transition en CSS (0.4s)
+}
+
+// Cierra modal al tocar fondo oscuro
+document.getElementById('project-detail-modal')?.addEventListener('click', function(e) {
+    if (e.target === this) closeProjectModal();
+});
+
+// Lightbox
+function openLightbox(url) {
+    document.getElementById('lightbox-img').src = url;
+    document.getElementById('lightbox').classList.add('active');
+}
+
+function closeLightbox() {
+    document.getElementById('lightbox').classList.remove('active');
+}

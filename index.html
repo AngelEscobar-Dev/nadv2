@@ -1,0 +1,506 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>NAD Constructora | Arquitectura, Diseño y Construcción</title>
+    <meta name="description" content="NAD Constructora ofrece servicios integrales de estudio de factibilidad, proyecto arquitectónico y construcción en Paraguay. Calidad, compromiso y excelencia técnica en cada obra.">
+    <link rel="icon" type="image/png" href="/nad.png">
+
+    <!-- Open Graph / Redes Sociales y WhatsApp -->
+    <meta property="og:type" content="website">
+    <meta property="og:site_name" content="NAD Constructora">
+    <meta property="og:title" content="NAD Constructora | Arquitectura, Diseño y Construcción">
+    <meta property="og:description" content="NAD Constructora ofrece servicios integrales de estudio de factibilidad, proyecto arquitectónico y construcción en Paraguay. Calidad, compromiso y excelencia técnica en cada obra.">
+    <meta property="og:image" content="/nad.png">
+    <meta property="og:url" content="/">
+<meta property="og:image:alt" content="NAD Constructora Logo">
+
+    <!-- Twitter Cards -->
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:title" content="NAD Constructora | Arquitectura, Diseño y Construcción">
+    <meta name="twitter:description" content="NAD Constructora ofrece servicios integrales de estudio de factibilidad, proyecto arquitectónico y construcción en Paraguay. Calidad, compromiso y excelencia técnica en cada obra.">
+    <meta name="twitter:image" content="/nad.png">
+
+    <!-- Datos Estructurados Schema.org para Google -->
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "GeneralContractor",
+      "name": "NAD Constructora",
+      "image": "/nad.png",
+      "description": "Servicios integrales de factibilidad, proyecto arquitectónico y construcción en Paraguay. +35 años de experiencia.",
+      "telephone": "+595981076445",
+      "address": {
+        "@type": "PostalAddress",
+        "addressCountry": "PY"
+      },
+      "sameAs": [
+        "https://www.instagram.com/nadsaconstructora/"
+      ]
+    }
+    </script>
+
+    <link rel="stylesheet" href="/styles.css">
+    
+    <!-- Plyr Video Player CSS -->
+    <link rel="stylesheet" href="https://cdn.plyr.io/3.7.8/plyr.css" />
+    
+    <!-- Swiper CSS -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/swiper@10/swiper-bundle.min.css" />
+
+    <!-- FontAwesome para Logos Oficiales -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
+
+    <script src="https://unpkg.com/lucide@latest"></script>
+</head>
+<body>
+
+    <!-- Header -->
+    <header id="header">
+        <div class="container header-container">
+            <a href="#inicio" class="logo">
+                <img src="nad.png" alt="NAD Constructora Logo" id="site-logo">
+            </a>
+            <nav class="nav-links" aria-label="Navegación principal">
+                <a href="#inicio">Inicio</a>
+                <a href="#servicios">Servicios</a>
+                <a href="#nosotros">Nosotros</a>
+                <a href="#proyectos">Proyectos</a>
+                <a href="#contacto">Contactos</a>
+            </nav>
+            <div class="nav-actions">
+                <a href="https://wa.me/595981076445?text=Hola%20NAD%20Constructora%2C%20quiero%20agendar%20una%20reuni%C3%B3n" target="_blank" class="btn btn-primary" id="btn-wsp-header">
+                    <i class="fa-brands fa-whatsapp"></i> <span id="cms-btn-wsp-header-text">WhatsApp</span>
+                </a>
+                <button class="mobile-menu-btn" id="mobile-menu-btn" aria-label="Abrir menú">
+                    <i data-lucide="menu"></i>
+                </button>
+            </div>
+        </div>
+        <!-- Mobile Nav -->
+        <div class="mobile-nav" id="mobile-nav">
+            <a href="#inicio" class="mobile-link">Inicio</a>
+            <a href="#servicios" class="mobile-link">Servicios</a>
+            <a href="#nosotros" class="mobile-link">Nosotros</a>
+            <a href="#proyectos" class="mobile-link">Proyectos</a>
+            <a href="#contacto" class="mobile-link">Contactos</a>
+        </div>
+    </header>
+
+    <!-- Hero Section -->
+    <section class="hero" id="inicio">
+        <div class="hero-slider" id="hero-slider">
+            <div class="hero-bg slide active" id="cms-hero-bg"></div>
+            <!-- More slides added dynamically via script.js -->
+        </div>
+        <div class="hero-overlay"></div>
+        <div class="container hero-content">
+            <div class="hero-trust-badge fade-up">
+                <i data-lucide="shield-check"></i>
+                <span>Garantía Técnica &amp; +35 Años de Experiencia</span>
+            </div>
+            <span class="hero-label fade-up" id="cms-hero-label">Arquitectura · Diseño · Construcción</span>
+            <h1 class="hero-title fade-up delay-1" id="cms-hero-title">Hacemos realidad tus <span class="text-gradient">proyectos</span> con excelencia</h1>
+            <p class="fade-up delay-2" id="cms-hero-desc">Somos una empresa de construcción comprometida con la calidad técnica y la innovación. Desde el estudio de factibilidad hasta la entrega de la obra, acompañamos cada etapa de su proyecto.</p>
+            <div class="hero-buttons fade-up delay-3">
+                <a href="#proyectos" class="btn btn-outline-light" id="cms-hero-btn-projects-link">
+                    <i data-lucide="layout-grid"></i> <span id="cms-hero-btn-projects">Ver Proyectos</span>
+                </a>
+                <a href="https://wa.me/595981076445?text=Hola%20NAD%20Constructora%2C%20quiero%20agendar%20una%20reuni%C3%B3n" target="_blank" class="btn btn-primary" id="cms-hero-btn-contact-link">
+                    <i class="fa-brands fa-whatsapp"></i> <span id="cms-hero-btn-contact">Consultarnos</span>
+                </a>
+            </div>
+        </div>
+    </section>
+
+    <!-- Stats Bar -->
+    <div class="stats-bar">
+        <div class="container stats-grid">
+            <div class="stat-item fade-up">
+                <span class="stat-number" id="cms-stat-1-num">+35</span>
+                <span class="stat-label" id="cms-stat-1-lbl">Años de Experiencia</span>
+            </div>
+            <div class="stat-item fade-up delay-1">
+                <span class="stat-number" id="cms-stat-2-num">+50</span>
+                <span class="stat-label" id="cms-stat-2-lbl">Proyectos Entregados</span>
+            </div>
+            <div class="stat-item fade-up delay-2">
+                <span class="stat-number" id="cms-stat-3-num">100%</span>
+                <span class="stat-label" id="cms-stat-3-lbl">Clientes Satisfechos</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- Clients Carousel Section -->
+    <section class="clients-section" id="clientes-section" style="display: none;">
+        <div class="container">
+            <h2 class="text-center">Nuestros Clientes</h2>
+            <div class="clients-carousel-wrapper">
+                <div class="clients-track" id="cms-clients-track">
+                    <!-- Logos injected here via JS -->
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Services Section -->
+    <section class="services" id="servicios">
+        <div class="container">
+            <div class="section-header fade-up">
+                <h2 id="cms-services-title">Nuestros Servicios</h2>
+                <p id="cms-services-subtitle">Ofrecemos soluciones completas para cada etapa de su proyecto, desde la concepción hasta la entrega final de la obra.</p>
+            </div>
+            <div class="services-grid">
+                <!-- Servicio 1 -->
+                <div class="service-card fade-up delay-1">
+                    <div class="service-icon">
+                        <i data-lucide="bar-chart-2"></i>
+                    </div>
+                    <h3 id="cms-service-1-title">Estudio de Factibilidad</h3>
+                    <p id="cms-service-1-desc">Evaluamos la viabilidad de su inversión antes de comenzar. Análisis integral para asegurar el éxito de su proyecto desde la primera etapa.</p>
+                    <ul class="service-list" id="cms-service-1-items">
+                        <li><i data-lucide="check"></i> Análisis de localización</li>
+                        <li><i data-lucide="check"></i> Estudios preliminares y anteproyectos</li>
+                        <li><i data-lucide="check"></i> Factibilidad económica</li>
+                        <li><i data-lucide="check"></i> Análisis de rentabilidad</li>
+                    </ul>
+                </div>
+
+                <!-- Servicio 2 -->
+                <div class="service-card featured fade-up delay-2">
+                    <div class="service-icon">
+                        <i data-lucide="pen-tool"></i>
+                    </div>
+                    <h3 id="cms-service-2-title">Proyecto Integral</h3>
+                    <p id="cms-service-2-desc">Diseñamos y planificamos su obra de forma completa, garantizando coherencia entre diseño, estructura y todos los sistemas especiales.</p>
+                    <ul class="service-list" id="cms-service-2-items">
+                        <li><i data-lucide="check"></i> Proyecto de arquitectura</li>
+                        <li><i data-lucide="check"></i> Diseño y cálculo estructural</li>
+                        <li><i data-lucide="check"></i> Instalaciones especiales (alarmas, PCI, CCTV)</li>
+                        <li><i data-lucide="check"></i> Cómputo métrico y presupuesto</li>
+                        <li><i data-lucide="check"></i> Cronograma físico-financiero</li>
+                    </ul>
+                </div>
+
+                <!-- Servicio 3 -->
+                <div class="service-card fade-up delay-3">
+                    <div class="service-icon">
+                        <i data-lucide="hard-hat"></i>
+                    </div>
+                    <h3 id="cms-service-3-title">Construcción</h3>
+                    <p id="cms-service-3-desc">Ejecutamos su obra con los más altos estándares de calidad, controlando tiempos, costos y seguridad en cada etapa del proceso constructivo.</p>
+                    <ul class="service-list" id="cms-service-3-items">
+                        <li><i data-lucide="check"></i> Planificación general</li>
+                        <li><i data-lucide="check"></i> Ejecución de obras</li>
+                        <li><i data-lucide="check"></i> Dirección técnica</li>
+                        <li><i data-lucide="check"></i> Fiscalización de obras</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- About Section -->
+    <section class="about" id="nosotros">
+        <div class="container">
+            <div class="about-grid">
+                <div class="about-content fade-up">
+                    <span class="badge" id="cms-about-badge">Sobre Nosotros</span>
+                    <h2 id="cms-about-title">Nuestra Visión</h2>
+                    <p id="cms-about-p1">En <strong>NAD Constructora</strong>, nuestra visión es transformar entornos a través de una arquitectura innovadora, funcional y sostenible. Con +35 años de trayectoria, trabajamos para ser referentes del sector en Paraguay, priorizando la calidad técnica, la seguridad y la plena satisfacción de cada cliente.</p>
+                    <p id="cms-about-p2">Creemos que cada proyecto es único. Por eso, brindamos un trato personalizado y profesional desde la primera consulta hasta la entrega final de la obra.</p>
+                    <div class="director-card">
+                        <div class="director-avatar">
+                            <img id="cms-director-image" src="" alt="Director" class="director-img" style="display:none;">
+                            <i id="cms-director-icon" data-lucide="user"></i>
+                        </div>
+                        <div class="director-info">
+                            <span class="director-role" id="cms-director-role">Director &amp; Fundador</span>
+                            <h4 id="cms-director-name">Arquitecto — NAD</h4>
+                            <p id="cms-director-desc">Profesional con +35 años de experiencia en diseño y ejecución de proyectos. Su liderazgo garantiza excelencia técnica y estética en cada obra.</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="about-image-wrapper fade-up delay-1">
+                    <img src="https://images.unsplash.com/photo-1503387762-592deb58ef4e?auto=format&fit=crop&q=80&w=800" alt="Arquitectura moderna - NAD Constructora" class="about-image" id="cms-about-image" loading="lazy">
+                    <div class="experience-badge">
+                        <span class="number" id="cms-exp-years">+35</span>
+                        <span class="text" id="cms-exp-text">Años de<br>Experiencia</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+
+    <!-- Projects Section -->
+    <section class="projects" id="proyectos">
+        <div class="container">
+            <div class="section-header fade-up">
+                <h2 id="cms-projects-title">Proyectos Destacados</h2>
+                <p id="cms-projects-subtitle">Explora algunas de nuestras obras más recientes. Cada proyecto refleja nuestro compromiso con la calidad y el detalle.</p>
+            </div>
+
+            <!-- Contenedor de proyectos destacados (cargado dinámicamente) -->
+            <div class="projects-grid" id="projects-grid">
+                <div class="project-card fade-up delay-1" data-year="2025">
+                    <div class="project-image">
+                        <img src="Construccion de edificio comercial.png" alt="Construcción de Edificio Comercial">
+                        <div class="project-overlay">
+                            <button class="project-link open-modal-btn"
+                                data-title="Edificio Comercial"
+                                data-category="Construcción y Diseño Estructural"
+                                data-desc="Desarrollo integral de edificio comercial. El proyecto comprendió el diseño arquitectónico, el cálculo estructural y la ejecución completa de la obra, cumpliendo con todas las normativas vigentes y los estándares de calidad."
+                                data-location="Área Comercial"
+                                data-year="2025"
+                                data-image="Construccion de edificio comercial.png"
+                                aria-label="Ver detalles del proyecto Edificio Comercial">
+                                <i data-lucide="arrow-up-right"></i>
+                            </button>
+                        </div>
+                    </div>
+                    <div class="project-info">
+                        <span class="project-year-tag">2025</span>
+                        <h3>Edificio Comercial</h3>
+                        <p>Construcción y diseño estructural</p>
+                    </div>
+                </div>
+
+                <div class="project-card fade-up delay-2" data-year="2024">
+                    <div class="project-image">
+                        <img src="Proyecto domicilio.png" alt="Proyecto Domicilio Residencial">
+                        <div class="project-overlay">
+                            <button class="project-link open-modal-btn"
+                                data-title="Proyecto Domicilio"
+                                data-category="Proyecto Integral — Vivienda"
+                                data-desc="Proyecto integral de vivienda unifamiliar ejecutado llave en mano. Nuestro equipo se encargó de la planificación, diseño arquitectónico, dirección de obra y fiscalización, logrando un hogar funcional y estético construido con materiales de primera calidad."
+                                data-location="Zona Residencial"
+                                data-year="2024"
+                                data-image="Proyecto domicilio.png"
+                                aria-label="Ver detalles del proyecto Domicilio">
+                                <i data-lucide="arrow-up-right"></i>
+                            </button>
+                        </div>
+                    </div>
+                    <div class="project-info">
+                        <span class="project-year-tag">2024</span>
+                        <h3>Proyecto Domicilio</h3>
+                        <p>Proyecto integral llave en mano</p>
+                    </div>
+                </div>
+
+                <div class="project-card fade-up delay-3" data-year="2023">
+                    <div class="project-image">
+                        <img src="https://images.unsplash.com/photo-1581094794329-c8112a89af12?auto=format&fit=crop&q=80&w=600" alt="Desarrollo Comercial">
+                        <div class="project-overlay">
+                            <button class="project-link open-modal-btn"
+                                data-title="Desarrollo Comercial"
+                                data-category="Estudio de Factibilidad y Fiscalización"
+                                data-desc="Realizamos el estudio de factibilidad completo para este desarrollo comercial: análisis de localización, factibilidad económica y análisis de rentabilidad. Posteriormente asumimos la dirección y fiscalización de la obra, garantizando el cumplimiento del cronograma y presupuesto pactado."
+                                data-location="Avenida Principal"
+                                data-year="2023"
+                                data-image="https://images.unsplash.com/photo-1581094794329-c8112a89af12?auto=format&fit=crop&q=80&w=1200"
+                                aria-label="Ver detalles del proyecto Desarrollo Comercial">
+                                <i data-lucide="arrow-up-right"></i>
+                            </button>
+                        </div>
+                    </div>
+                    <div class="project-info">
+                        <span class="project-year-tag">2023</span>
+                        <h3>Desarrollo Comercial</h3>
+                        <p>Estudios de factibilidad y fiscalización</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="projects-action fade-up" id="projects-action-wrap">
+                <a href="/proyectos" class="btn btn-outline" id="btn-ver-mas-proyectos">
+                    <i data-lucide="grid" id="btn-ver-mas-icon"></i>
+                    <span id="btn-ver-mas-text">Ver todos los proyectos completos</span>
+                </a>
+            </div>
+        </div>
+    </section>
+
+    <!-- Video Section -->
+    <section class="video-section" id="video-institucional" style="display:none;">
+        <div class="container">
+            <div class="section-header fade-up">
+                <h2 id="cms-video-title">Video Promocional</h2>
+                <p id="cms-video-desc">Descubre más sobre nuestro trabajo y compromiso.</p>
+            </div>
+            <div class="video-carousel video-carousel-wrapper fade-up delay-1" id="cms-video-carousel-container">
+                <!-- Swiper -->
+                <div class="swiper video-swiper video-swiper-container">
+                    <div class="swiper-wrapper" id="video-swiper-wrapper">
+                        <!-- Dynamic video slides will be injected here -->
+                    </div>
+                    <div class="swiper-button-next"></div>
+                    <div class="swiper-button-prev"></div>
+                    <div class="swiper-pagination"></div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- CTA Section -->
+    <section class="cta-section" id="contacto">
+        <div class="cta-overlay" id="cms-cta-bg"></div>
+        <div class="container cta-content fade-up">
+            <h2 id="cms-cta-title">¿Tiene un proyecto en mente?</h2>
+            <p id="cms-cta-subtitle">Cuéntenos su idea y nuestro equipo le asesorará sin compromiso. Estamos listos para convertir su visión en una realidad.</p>
+            <div class="cta-buttons">
+                <a href="https://wa.me/595981076445?text=Hola%20NAD%20Constructora%2C%20quiero%20agendar%20una%20reuni%C3%B3n" target="_blank" class="btn btn-primary btn-lg" id="cms-cta-btn-wsp-link">
+                    <i class="fa-brands fa-whatsapp"></i> <span id="cms-cta-btn-wsp">Consultar por WhatsApp</span>
+                </a>
+                <a href="https://www.instagram.com/nadsaconstructora/" target="_blank" class="btn btn-outline-light btn-lg" id="cms-cta-btn-ig-link">
+                    <i class="fa-brands fa-instagram"></i> <span id="cms-cta-btn-ig">Seguirnos en Instagram</span>
+                </a>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="container footer-grid">
+            <div class="footer-brand">
+                <img src="nad.png" alt="NAD Constructora Logo" class="footer-logo" id="cms-footer-logo">
+                <p id="cms-footer-desc">Transformamos ideas en realidades estructurales. Arquitectura, diseño y construcción con excelencia técnica en cada proyecto.</p>
+                <div class="social-links">
+                    <a href="https://www.instagram.com/nadsaconstructora/" target="_blank" aria-label="Instagram NAD Constructora" id="cms-footer-ig-link">
+                        <i class="fa-brands fa-instagram"></i>
+                    </a>
+                    <a href="https://wa.me/595981076445?text=Hola%20NAD%20Constructora%2C%20quiero%20agendar%20una%20reuni%C3%B3n" target="_blank" aria-label="WhatsApp NAD Constructora" id="cms-footer-wsp-link">
+                        <i class="fa-brands fa-whatsapp"></i>
+                    </a>
+                </div>
+            </div>
+
+            <div class="footer-links">
+                <h4>Navegación</h4>
+                <ul>
+                    <li><a href="#inicio">Inicio</a></li>
+                    <li><a href="#servicios">Servicios</a></li>
+                    <li><a href="#nosotros">Nosotros</a></li>
+                    <li><a href="#proyectos">Proyectos</a></li>
+                    <li><a href="#contacto">Contactos</a></li>
+                </ul>
+            </div>
+
+            <div class="footer-services">
+                <h4>Servicios</h4>
+                <ul>
+                    <li><a href="#servicios">Estudio de Factibilidad</a></li>
+                    <li><a href="#servicios">Proyecto Integral</a></li>
+                    <li><a href="#servicios">Construcción</a></li>
+                    <li><a href="#servicios">Diseño Estructural</a></li>
+                    <li><a href="#servicios">Fiscalización de Obras</a></li>
+                </ul>
+            </div>
+
+            <div class="footer-contact">
+                <h4>Contacto</h4>
+                <ul>
+                    <li><i data-lucide="map-pin"></i> <span id="cms-contact-address">Paraguay</span></li>
+                    <li>
+                        <a href="https://wa.me/595981076445?text=Hola%20NAD%20Constructora%2C%20quiero%20agendar%20una%20reuni%C3%B3n" target="_blank" id="cms-contact-phone-link">
+                            <i data-lucide="phone"></i> <span id="cms-contact-phone">+595 981 076 445</span>
+                        </a>
+                    </li>
+                    <li>
+                        <a href="mailto:contacto@nadconstructora.com" id="cms-contact-email-link">
+                            <i data-lucide="mail"></i> <span id="cms-contact-email">contacto@nadconstructora.com</span>
+                        </a>
+                    </li>
+                    <li>
+                        <a href="https://www.instagram.com/nadsaconstructora/" target="_blank" id="cms-contact-ig-link">
+                            <i class="fa-brands fa-instagram"></i> <span id="cms-contact-instagram">@nadsaconstructora</span>
+                        </a>
+                    </li>
+                </ul>
+            </div>
+        </div>
+        <div class="container" style="margin-top: 2rem;">
+            <!-- Google Maps Footer -->
+            <iframe src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d14431.144933990867!2d-57.5141941!3d-25.3267418!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x945daef42bf43a8f%3A0x8645ab746391e379!2sNAD%20Constructora!5e0!3m2!1sen!2spy!4v1700000000000!5m2!1sen!2spy" width="100%" height="250" style="border:0; border-radius:12px;" allowfullscreen="" loading="lazy" referrerpolicy="no-referrer-when-downgrade"></iframe>
+        </div>
+        <div class="footer-bottom">
+            <div class="container">
+                <p id="cms-footer-copy">© 2026 NAD Constructora. Todos los derechos reservados.</p>
+            </div>
+        </div>
+    </footer>
+
+    <!-- Scroll Progress Bar -->
+    <div class="scroll-progress" id="scroll-progress"></div>
+
+    <!-- Back to Top Button -->
+    <button class="back-to-top" id="back-to-top" aria-label="Volver al inicio">
+        <i data-lucide="chevron-up"></i>
+    </button>
+
+    <!-- Floating WhatsApp Button -->
+    <a href="https://wa.me/595981076445?text=Hola%20NAD%20Constructora%2C%20quiero%20agendar%20una%20reuni%C3%B3n" target="_blank" class="wsp-float" id="cms-wsp-float" aria-label="Contactar por WhatsApp">
+        <svg viewBox="0 0 24 24" fill="currentColor" width="28" height="28">
+            <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347z"/>
+            <path d="M12 0C5.373 0 0 5.373 0 12c0 2.123.556 4.112 1.528 5.836L.057 23.885l6.255-1.438A11.945 11.945 0 0012 24c6.627 0 12-5.373 12-12S18.627 0 12 0zm0 21.818a9.822 9.822 0 01-5.002-1.369l-.36-.214-3.713.853.88-3.613-.234-.371A9.822 9.822 0 012.182 12C2.182 6.565 6.565 2.182 12 2.182c5.434 0 9.818 4.383 9.818 9.818 0 5.434-4.384 9.818-9.818 9.818z"/>
+        </svg>
+        <span class="wsp-tooltip">Contactar a NAD</span>
+    </a>
+
+    <!-- Project Modal con Soporte Dual de Imagen y Video -->
+    <div class="modal-overlay" id="project-modal" role="dialog" aria-modal="true" aria-labelledby="modal-title" aria-hidden="true" style="display: none;">
+        <div class="modal-container">
+            <button class="modal-close" id="modal-close" aria-label="Cerrar modal">
+                <i data-lucide="x"></i>
+            </button>
+            <div class="modal-content">
+                <div class="modal-image" id="modal-media-container">
+                    <img id="modal-img" src="" alt="Imagen del proyecto" onerror="this.src='/nad.png'" loading="lazy">
+                    <video id="modal-video" controls autoplay loop playsinline class="modal-video-element" style="display:none;"></video>
+                </div>
+                <div class="modal-info">
+                    <div class="modal-info-body">
+                        <span class="badge" id="modal-category"></span>
+                        <h2 id="modal-title"></h2>
+                        <p id="modal-desc"></p>
+                    </div>
+                    <div>
+                        <div class="modal-details">
+                            <div class="detail-item">
+                                <i data-lucide="map-pin"></i>
+                                <span id="modal-location"></span>
+                            </div>
+                            <div class="detail-item">
+                                <i data-lucide="calendar"></i>
+                                <span id="modal-year"></span>
+                            </div>
+                        </div>
+                        <div class="modal-actions-container">
+                            <button type="button" class="btn btn-outline" id="modal-share-btn">
+                                <i data-lucide="share-2"></i> Compartir
+                            </button>
+                            <a href="#" target="_blank" class="btn btn-primary" id="modal-cta-btn">
+                                <i class="fa-brands fa-whatsapp"></i> Tengo una idea similar
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Swiper JS -->
+    <script src="https://cdn.jsdelivr.net/npm/swiper@10/swiper-bundle.min.js"></script>
+    
+    <!-- Plyr Video Player JS -->
+    <script src="https://cdn.plyr.io/3.7.8/plyr.polyfilled.js"></script>
+    
+    <!-- Custom JS -->
+    <script src="/script.js"></script>
+    
+    <!-- Instagram Embed Script -->
+    <script async src="//www.instagram.com/embed.js"></script>
+</body>
+</html>

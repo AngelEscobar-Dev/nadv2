@@ -1,0 +1,46 @@
+# ── Dependencias ──────────────────────────────────────────────────────────────
+node_modules/
+
+# ── Base de datos y uploads (Railway usa Volumen persistente) ─────────────────
+data/
+public/uploads/
+*.db
+*.db-journal
+*.db-wal
+*.db-shm
+
+# ── Variables de entorno (nunca al repositorio) ────────────────────────────────
+.env
+.env.local
+.env.production
+
+# ── Backups locales ────────────────────────────────────────────────────────────
+backup*/
+backup*.css
+backup*.html
+v2_colores_backup/
+*.zip
+
+# ── Scripts temporales de desarrollo ──────────────────────────────────────────
+fix_texts.js
+fix_*.js
+test_*.js
+verify_*.js
+cleanup*.js
+fix_*.py
+temp*.py
+
+# ── OS / Editor ────────────────────────────────────────────────────────────────
+.DS_Store
+Thumbs.db
+desktop.ini
+.vscode/
+.idea/
+*.log
+
+# ── Archivos temporales / desarrollo ──────────────────────────────────────────
+graphify-out/
+out.txt
+diff.txt
+*.mp4
+Nuevo Documento de texto.txt

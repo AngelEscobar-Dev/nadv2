@@ -49,7 +49,6 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // Botón Ver Más Proyectos
     const btnVerMas       = document.getElementById('btn-ver-mas-proyectos');
-    const projectsExtra   = document.getElementById('projects-extra');
     const btnText         = document.getElementById('btn-ver-mas-text');
     const btnIcon         = document.getElementById('btn-ver-mas-icon');
     const projectsActWrap = document.getElementById('projects-action-wrap');
@@ -72,14 +71,29 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     // ── Header, Scroll Progress & Parallax ──────────────────────────────────
+    // En móvil el header ocupa mucho lugar: se esconde al bajar y reaparece
+    // al subir, pero recién después de pasar HIDE_THRESHOLD (no desaparece
+    // apenas se empieza a scrollear).
+    let lastScrollY = window.scrollY;
+    const HIDE_THRESHOLD = 160;
+
     window.addEventListener('scroll', () => {
         const scrollTop     = window.scrollY;
         const docHeight     = document.documentElement.scrollHeight - window.innerHeight;
         const scrollPercent = docHeight > 0 ? (scrollTop / docHeight) * 100 : 0;
 
-        if (progressBar) progressBar.style.width = scrollPercent + '%';
+        if (progressBar) progressBar.style.transform = `scaleX(${scrollPercent / 100})`;
         if (header)      header.classList.toggle('scrolled', scrollTop > 50);
         if (backToTop)   backToTop.classList.toggle('visible', scrollTop > 400);
+
+        if (header && window.innerWidth <= 768) {
+            if (scrollTop > lastScrollY && scrollTop > HIDE_THRESHOLD) {
+                header.classList.add('header-hidden');
+            } else if (scrollTop < lastScrollY) {
+                header.classList.remove('header-hidden');
+            }
+        }
+        lastScrollY = scrollTop;
 
         const heroBg = document.querySelector('.hero-bg');
         if (heroBg && scrollTop < window.innerHeight * 1.2) {
@@ -276,6 +290,18 @@ document.addEventListener('DOMContentLoaded', () => {
             btn.removeEventListener('click', btn._modalClick);
             btn._modalClick = () => openModal(btn);
             btn.addEventListener('click', btn._modalClick);
+        });
+        // Toda la tarjeta responde al toque (en móvil no hay hover para revelar
+        // el botón interno, así que antes hacía falta tocar dos veces).
+        const cards = container ? container.querySelectorAll('.project-card') : document.querySelectorAll('.project-card');
+        cards.forEach(card => {
+            card.removeEventListener('click', card._cardClick);
+            card._cardClick = (e) => {
+                if (e.target.closest('.open-modal-btn')) return;
+                const btn = card.querySelector('.open-modal-btn');
+                if (btn) openModal(btn);
+            };
+            card.addEventListener('click', card._cardClick);
         });
     }
     bindModalButtons();
@@ -494,20 +520,6 @@ document.addEventListener('DOMContentLoaded', () => {
                 setText('cms-service-3-title', texts.service_3_title);
                 setText('cms-service-3-desc', texts.service_3_desc);
                 renderServiceItems('cms-service-3-items', texts.service_3_items);
-                
-                // Servicio destacado dinamico
-                if (content.section_styles && content.section_styles.services && content.section_styles.services.featured_card !== undefined) {
-                    const featIdx = parseInt(content.section_styles.services.featured_card);
-                    document.querySelectorAll('.services-grid .service-card').forEach((card, i) => {
-                        if (featIdx === 0) {
-                            card.classList.remove('featured');
-                        } else if (i + 1 === featIdx) {
-                            card.classList.add('featured');
-                        } else {
-                            card.classList.remove('featured');
-                        }
-                    });
-                }
 
                 // Nosotros
                 setText('cms-about-badge', texts.about_badge);
@@ -608,9 +620,9 @@ document.addEventListener('DOMContentLoaded', () => {
                                     </blockquote>
                                 `;
                                                         } else if (src.match(/\.(jpeg|jpg|gif|png|webp|avif|bmp|svg)$/i)) {
-                                slide.innerHTML = `<img src="${src}" alt="Publicación" style="max-width:100%; max-height:80vh; border-radius: 12px; box-shadow: 0 10px 30px rgba(0,0,0,0.1); object-fit: contain;">`;
+                                slide.innerHTML = `<img src="${src}" alt="Publicación" class="post-media" style="box-shadow: 0 10px 30px rgba(0,0,0,0.1);">`;
                             } else {
-                                slide.innerHTML = `<video class="plyr-video" src="${src}" style="max-width:100%; max-height:80vh; border-radius: 12px;" playsinline controls></video>`;
+                                slide.innerHTML = `<video class="plyr-video post-media" src="${src}" playsinline controls></video>`;
                             }
                             
                             swiperWrapper.appendChild(slide);
@@ -633,6 +645,12 @@ document.addEventListener('DOMContentLoaded', () => {
                                     spaceBetween: 30,
                                     loop: false,
                                     autoHeight: true,
+                                    // El embed de Instagram se inserta de forma asíncrona (después de
+                                    // que Swiper ya midió la altura inicial), dejando el slide vacío.
+                                    // observer/observeParents hacen que Swiper vuelva a medir la altura
+                                    // cuando ese contenido aparece.
+                                    observer: true,
+                                    observeParents: true,
                                     navigation: {
                                         nextEl: '.video-swiper .swiper-button-next',
                                         prevEl: '.video-swiper .swiper-button-prev',
@@ -640,6 +658,16 @@ document.addEventListener('DOMContentLoaded', () => {
                                     grabCursor: true
                                 });
                             }
+
+                            // Instagram tarda en reemplazar el <blockquote> por el embed real;
+                            // reforzamos el recálculo de altura unas veces más mientras carga.
+                            [300, 800, 1500, 3000].forEach(delay => {
+                                setTimeout(() => {
+                                    if (window.videoSwiperInstance) {
+                                        window.videoSwiperInstance.updateAutoHeight();
+                                    }
+                                }, delay);
+                            });
                             
                             // Inicializar Plyr
                             if (typeof Plyr !== 'undefined') {

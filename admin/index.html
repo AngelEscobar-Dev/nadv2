@@ -164,6 +164,10 @@ textarea{resize:vertical;min-height:90px;line-height:1.5}
 <div class="fgr"><label>Fuente de Enlaces</label><select id="ss-navbar-font_body"><option value="">Usar Global</option><option value="Outfit">Outfit</option><option value="Inter">Inter</option><option value="Roboto">Roboto</option><option value="Open Sans">Open Sans</option><option value="Montserrat">Montserrat</option></select></div>
 <div class="fgr"><label>Tamaño de Enlaces</label><select id="ss-navbar-body_size"><option value="">Usar Global</option><option value="1.1rem">1.1rem</option><option value="1rem">1rem</option><option value="0.95rem">0.95rem</option></select></div>
 </div></div>
+<div class="fc"><div class="fch"><h3>Difuminado sobre el Hero</h3><p>El logo y los enlaces flotan sobre la foto del hero antes de hacer scroll. Este difuminado los mantiene legibles sobre cualquier fondo.</p></div><div class="fg">
+<div class="fgr"><label>Difuminado</label><select id="ss-navbar-hero_glow_enabled"><option value="1">Activado</option><option value="0">Desactivado</option></select></div>
+<div class="fgr"><label>Color del Difuminado</label><div class="cpw"><input type="color" id="ss-picker-navbar-hero_glow_color" value="#FFFFFF" oninput="document.getElementById('ss-navbar-hero_glow_color').value=this.value"><input type="text" id="ss-navbar-hero_glow_color" value="#FFFFFF" oninput="ssSync('navbar','hero_glow_color',this.value)"></div></div>
+</div></div>
 <div class="save-row"><button class="btn bp" onclick="saveSection('navbar')">💾 Guardar Menú</button></div>
 </div>
 
@@ -249,7 +253,6 @@ textarea{resize:vertical;min-height:90px;line-height:1.5}
 <div class="fgr"><label>Borde e Ícono de Tarjetas</label><div class="cpw"><input type="color" id="ss-picker-services-card_border_color" value="#C1121F" oninput="document.getElementById('ss-services-card_border_color').value=this.value"><input type="text" id="ss-services-card_border_color" value="#C1121F" oninput="ssSync('services','card_border_color',this.value)"></div></div>
 <div class="fgr"><label>Color del Texto</label><div class="cpw"><input type="color" id="ss-picker-services-text_color" value="#111111" oninput="document.getElementById('ss-services-text_color').value=this.value"><input type="text" id="ss-services-text_color" value="#111111" oninput="ssSync('services','text_color',this.value)"></div></div>
 <div class="fgr"><label>Color de Títulos</label><div class="cpw"><input type="color" id="ss-picker-services-heading_color" value="#111111" oninput="document.getElementById('ss-services-heading_color').value=this.value"><input type="text" id="ss-services-heading_color" value="#111111" oninput="ssSync('services','heading_color',this.value)"></div></div>
-<div class="fgr"><label>Servicio Destacado</label><select id="ss-services-featured_card"><option value="1">Servicio 1</option><option value="2">Servicio 2</option><option value="3">Servicio 3</option><option value="0">Ninguno</option></select></div>
 <div class="fgr"><label>Fuente de Títulos</label><select id="ss-services-font_heading"><option value="">Usar Global</option><option value="Outfit">Outfit</option><option value="Inter">Inter</option><option value="Roboto">Roboto</option><option value="Cinzel">Cinzel</option><option value="Montserrat">Montserrat</option></select></div>
 <div class="fgr"><label>Tamaño Título</label><select id="ss-services-heading_size"><option value="">Usar Global</option><option value="2.8rem">2.8rem (Grande)</option><option value="2.5rem">2.5rem (Normal)</option><option value="2.2rem">2.2rem (Mediano)</option></select></div>
 <div class="fgr"><label>Fuente de Texto</label><select id="ss-services-font_body"><option value="">Usar Global</option><option value="Outfit">Outfit</option><option value="Inter">Inter</option><option value="Roboto">Roboto</option><option value="Open Sans">Open Sans</option><option value="Montserrat">Montserrat</option></select></div>
@@ -484,8 +487,9 @@ textarea{resize:vertical;min-height:90px;line-height:1.5}
 <input type="file" id="f-file" accept="image/*,video/*" style="display:none" onchange="previewFile(this)">
 <img id="preview-img" class="pimg" src="" alt="" style="display:none"></div>
 <div class="fgr full"><label>Galería Adicional</label>
-<div class="ua" onclick="document.getElementById('f-extra-media').click()"><svg width="34" height="34" viewBox="0 0 24 24" fill="none" stroke="#9ca3af" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg><p>Seleccionar múltiples fotos o videos</p></div>
+<div class="ua" onclick="document.getElementById('f-extra-media').click()"><svg width="34" height="34" viewBox="0 0 24 24" fill="none" stroke="#9ca3af" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg><p>Agregar una o varias fotos/videos (podés hacerlo de a una, en varias veces)</p></div>
 <input type="file" id="f-extra-media" accept="image/*,video/*" multiple style="display:none" onchange="previewExtraMedia(this)">
+<p style="font-size:.75rem;margin-top:.4rem;color:#9ca3af">Usá las flechas para ordenarlas: así se van a ver en la galería del proyecto.</p>
 <div id="extra-media-preview" style="display:flex;flex-wrap:wrap;gap:10px;margin-top:10px;"></div></div>
 </form></div>
 <div class="mf"><button class="btn bs" onclick="closeModal()">Cancelar</button><button class="btn bp" onclick="saveProject()">Guardar proyecto</button></div>
@@ -499,7 +503,7 @@ const adm=ps[0]||'gestion-nad-2026';
 const PANEL='/'+adm,API=PANEL+'/api';
 const le=document.getElementById('logout-btn');if(le)le.href=PANEL+'/logout';
 const be=document.getElementById('btn-backup-db');if(be)be.href=API+'/backup-db';
-const SS_SECTIONS={navbar:['bg_color','text_color','link_hover_color','font_heading','font_body','heading_size','body_size'],hero:['text_color','overlay_opacity','heading_color','font_heading','font_body','heading_size','body_size'],stats:['bg_color','text_color','heading_color','font_heading','font_body','heading_size','body_size'],services:['bg_color','text_color','heading_color','card_bg','card_border_color','font_heading','font_body','heading_size','body_size','featured_card'],about:['bg_color','text_color','heading_color','font_heading','font_body','heading_size','body_size'],projects:['bg_color','text_color','heading_color','card_bg','font_heading','font_body','heading_size','body_size'],video:['bg_color','text_color','heading_color','font_heading','font_body','heading_size','body_size'],clients:['bg_color','text_color','heading_color','font_heading','font_body','heading_size','body_size'],cta:['text_color','overlay_opacity','heading_color','font_heading','font_body','heading_size','body_size'],footer:['bg_color','text_color','link_hover_color','heading_color','font_heading','font_body','heading_size','body_size']};
+const SS_SECTIONS={navbar:['bg_color','text_color','link_hover_color','font_heading','font_body','heading_size','body_size','hero_glow_enabled','hero_glow_color'],hero:['text_color','overlay_opacity','heading_color','font_heading','font_body','heading_size','body_size'],stats:['bg_color','text_color','heading_color','font_heading','font_body','heading_size','body_size'],services:['bg_color','text_color','heading_color','card_bg','card_border_color','font_heading','font_body','heading_size','body_size'],about:['bg_color','text_color','heading_color','font_heading','font_body','heading_size','body_size'],projects:['bg_color','text_color','heading_color','card_bg','font_heading','font_body','heading_size','body_size'],video:['bg_color','text_color','heading_color','font_heading','font_body','heading_size','body_size'],clients:['bg_color','text_color','heading_color','font_heading','font_body','heading_size','body_size'],cta:['text_color','overlay_opacity','heading_color','font_heading','font_body','heading_size','body_size'],footer:['bg_color','text_color','link_hover_color','heading_color','font_heading','font_body','heading_size','body_size']};
 let projects=[],siteContent=null;
 const VT={dashboard:'Dashboard',projects:'Gestión de Proyectos','sec-navbar':'Menú Superior','sec-hero':'Hero / Portada','sec-stats':'Estadísticas','sec-services':'Servicios','sec-about':'Nosotros','sec-projects':'Sección Proyectos','sec-video':'Video Institucional','sec-clients':'Nuestros Clientes','sec-contact':'CTA & Contacto','global-styles':'Estilo Global','global-images':'Imágenes Globales',settings:'Configuración'};
 function showToast(m,t='success'){const el=document.getElementById('toast');el.textContent=m;el.className='toast show '+t;setTimeout(()=>{el.className='toast';},3200);}
@@ -544,6 +548,7 @@ function openNewModal(){
     document.getElementById('preview-img').style.display='none';
     document.getElementById('img-required').style.display='inline';
     window.currentKeptMedia=[];
+    window.pendingExtraFiles=[];
     document.getElementById('extra-media-preview').innerHTML='';
     document.getElementById('project-modal').classList.add('open');
 }
@@ -566,8 +571,9 @@ function openEditModal(id){
     pv.src=p.image;
     pv.style.display='block';
     window.currentKeptMedia=[];
+    window.pendingExtraFiles=[];
     try{if(p.extra_media&&p.extra_media.length>2)window.currentKeptMedia=JSON.parse(p.extra_media);}catch(e){}
-    renderKeptMedia();
+    renderExtraMediaPreview();
     document.getElementById('f-extra-media').value='';
     document.getElementById('f-file').value='';
     document.getElementById('project-modal').classList.add('open');
@@ -578,9 +584,64 @@ function closeModal(){
 }
 function addVideoRow(url=''){const list=document.getElementById('video-urls-list');if(!list)return;const row=document.createElement('div');row.style.cssText='display:flex;gap:10px;';row.className='video-url-row';const inp=document.createElement('input');inp.type='text';inp.placeholder='https://youtube.com/... o /uploads/...';inp.style.flex='1';inp.value=url;const del=document.createElement('button');del.type='button';del.className='btn bs';del.style.padding='0 15px';del.textContent='✕';del.onclick=()=>{deleteAsset(inp.value);row.remove();};row.appendChild(inp);row.appendChild(del);list.appendChild(row);}
 function previewFile(input){const f=input.files[0];if(!f)return;document.getElementById('upload-area')?.classList.remove('input-error');const pv=document.getElementById('preview-img');if(f.type.startsWith('video/')){pv.src='';pv.style.display='none';}else{const r=new FileReader();r.onload=e=>{pv.src=e.target.result;pv.style.display='block';};r.readAsDataURL(f);}}
-function renderKeptMedia(){const c=document.getElementById('extra-media-preview');c.innerHTML='';(window.currentKeptMedia||[]).forEach((url,i)=>{const w=document.createElement('div');w.style.cssText='position:relative;width:80px;height:80px;';w.innerHTML=`<img src="${url}" style="width:100%;height:100%;object-fit:cover;border-radius:8px;"><button type="button" style="position:absolute;top:-5px;right:-5px;background:red;color:white;border-radius:50%;width:20px;height:20px;border:none;cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:12px;" onclick="removeKeptMedia(${i})">✕</button>`;c.appendChild(w);});}
-function removeKeptMedia(i){window.currentKeptMedia.splice(i,1);renderKeptMedia();}
-function previewExtraMedia(input){renderKeptMedia();const c=document.getElementById('extra-media-preview');if(input.files)Array.from(input.files).forEach(f=>{const r=new FileReader();r.onload=e=>{const w=document.createElement('div');w.style.cssText='width:80px;height:80px;';w.innerHTML=`<img src="${e.target.result}" style="width:100%;height:100%;object-fit:cover;border-radius:8px;">`;c.appendChild(w);};if(f.type.startsWith('image/'))r.readAsDataURL(f);});}
+// Miniatura reutilizable para la galería adicional: sirve tanto para fotos ya
+// guardadas (window.currentKeptMedia, URLs) como para archivos recién
+// elegidos que todavía no se subieron (window.pendingExtraFiles, File[]).
+// Cada una lleva su propio botón de eliminar y flechas para reordenar dentro
+// de su lista — el orden final que se guarda es: primero las ya guardadas
+// (en el orden que quede acá), después las nuevas (en el orden elegido acá).
+function extraMediaThumb(previewSrc,isVideo,i,total,label,moveFn,removeFn){
+    const w=document.createElement('div');
+    w.style.cssText='position:relative;width:80px;height:80px;';
+    const inner=isVideo
+        ? `<div style="width:100%;height:100%;border-radius:8px;background:#1f2937;display:flex;align-items:center;justify-content:center;color:#9ca3af;font-size:11px;text-align:center;">Video</div>`
+        : `<img src="${previewSrc}" style="width:100%;height:100%;object-fit:cover;border-radius:8px;">`;
+    w.innerHTML=`${inner}
+        ${label?`<span style="position:absolute;bottom:2px;left:2px;background:rgba(0,0,0,.55);color:#fff;font-size:9px;padding:1px 4px;border-radius:4px;">${label}</span>`:''}
+        <button type="button" title="Quitar" style="position:absolute;top:-5px;right:-5px;background:red;color:white;border-radius:50%;width:20px;height:20px;border:none;cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:12px;" onclick="${removeFn}(${i})">✕</button>
+        <div style="position:absolute;bottom:-2px;right:-2px;display:flex;gap:2px;">
+            <button type="button" title="Mover antes" ${i===0?'disabled':''} style="width:20px;height:20px;border:none;border-radius:4px;background:${i===0?'#e5e7eb':'#111827'};color:${i===0?'#9ca3af':'#fff'};cursor:${i===0?'default':'pointer'};font-size:11px;line-height:1;" onclick="${moveFn}(${i},-1)">‹</button>
+            <button type="button" title="Mover después" ${i===total-1?'disabled':''} style="width:20px;height:20px;border:none;border-radius:4px;background:${i===total-1?'#e5e7eb':'#111827'};color:${i===total-1?'#9ca3af':'#fff'};cursor:${i===total-1?'default':'pointer'};font-size:11px;line-height:1;" onclick="${moveFn}(${i},1)">›</button>
+        </div>`;
+    return w;
+}
+function renderExtraMediaPreview(){
+    const c=document.getElementById('extra-media-preview');
+    c.innerHTML='';
+    const kept=window.currentKeptMedia||[];
+    kept.forEach((url,i)=>{
+        const isVideo=/\.(mp4|webm|mov)$/i.test(url);
+        c.appendChild(extraMediaThumb(url,isVideo,i,kept.length,'Guardada','moveKeptMedia','removeKeptMedia'));
+    });
+    const pending=window.pendingExtraFiles||[];
+    pending.forEach((item,i)=>{
+        c.appendChild(extraMediaThumb(item.previewUrl,!item.previewUrl,i,pending.length,'Nueva','movePendingMedia','removePendingMedia'));
+    });
+}
+function moveKeptMedia(i,dir){const arr=window.currentKeptMedia;const j=i+dir;if(j<0||j>=arr.length)return;[arr[i],arr[j]]=[arr[j],arr[i]];renderExtraMediaPreview();}
+function removeKeptMedia(i){window.currentKeptMedia.splice(i,1);renderExtraMediaPreview();}
+function movePendingMedia(i,dir){const arr=window.pendingExtraFiles;const j=i+dir;if(j<0||j>=arr.length)return;[arr[i],arr[j]]=[arr[j],arr[i]];renderExtraMediaPreview();}
+function removePendingMedia(i){window.pendingExtraFiles.splice(i,1);renderExtraMediaPreview();}
+// Cada vez que se elige archivo(s) se SUMAN a lo que ya había elegido (en vez
+// de reemplazarlo, que es lo que hacía un <input type=file multiple> antes:
+// abrir el selector de nuevo pisaba la selección previa). Así se puede
+// agregar de a una foto por vez, en varias idas y vueltas, antes de guardar.
+function previewExtraMedia(input){
+    window.pendingExtraFiles=window.pendingExtraFiles||[];
+    if(input.files){
+        Array.from(input.files).forEach(f=>{
+            const item={file:f,previewUrl:null};
+            window.pendingExtraFiles.push(item);
+            if(f.type.startsWith('image/')){
+                const r=new FileReader();
+                r.onload=e=>{item.previewUrl=e.target.result;renderExtraMediaPreview();};
+                r.readAsDataURL(f);
+            }
+        });
+    }
+    input.value=''; // permite volver a abrir el selector y sumar más sin perder lo ya elegido
+    renderExtraMediaPreview();
+}
 async function saveProject(){
     const id=document.getElementById('edit-id').value;
     const err=document.getElementById('form-err');
@@ -636,8 +697,7 @@ async function saveProject(){
     fd.append('description',desc);
     if(file)fd.append('image',file);
     if(id)fd.append('kept_extra_media',JSON.stringify(window.currentKeptMedia||[]));
-    const ef=document.getElementById('f-extra-media').files;
-    if(ef)Array.from(ef).forEach(f=>fd.append('extra_media',f));
+    (window.pendingExtraFiles||[]).forEach(item=>fd.append('extra_media',item.file));
     try{
         const url=id?`${API}/projects/${id}`:`${API}/projects`;
         const method=id?'PUT':'POST';

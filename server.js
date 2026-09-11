@@ -170,7 +170,7 @@ const DEFAULT_CONTENT = {
     },
     section_styles: {
         hero: { text_color: '#FFFFFF', heading_color: '#FFFFFF', overlay_opacity: '0.65' },
-        services: { bg_color: '#FFFFFF', text_color: '#111111', heading_color: '#111111', card_bg: '#FFFFFF', card_border_color: '#C1121F', heading_size: '2.5rem', body_size: '1rem' },
+        services: { bg_color: '#F5F6F8', text_color: '#2B2F36', heading_color: '#111111', card_bg: '#FFFFFF', card_border_color: '#C1121F', heading_size: '2.5rem', body_size: '1rem' },
         about: { bg_color: '#FFF4C2', text_color: '#111111', heading_color: '#111111', heading_size: '2.8rem', body_size: '1.1rem' },
         projects: { bg_color: '#FFFFFF', text_color: '#111111', heading_color: '#111111', card_bg: '#FAFAFA', heading_size: '2.5rem', body_size: '1rem' },
         video: { bg_color: '#FFF4C2', text_color: '#111111', heading_color: '#111111' },
@@ -342,6 +342,15 @@ const defaultMeta = {
 };
 
 // ── Caché en memoria ─────────────────────────────────────────────────────────
+// Convierte un hex (#RRGGBB) a "r, g, b" para poder armarlo en un rgba() con
+// una opacidad fija en CSS (usado en el difuminado del menú sobre el hero).
+function hexToRgbParts(hex, fallback = '255, 255, 255') {
+    const m = /^#?([0-9a-f]{6})$/i.exec((hex || '').trim());
+    if (!m) return fallback;
+    const n = parseInt(m[1], 16);
+    return `${(n >> 16) & 255}, ${(n >> 8) & 255}, ${n & 255}`;
+}
+
 // Las plantillas HTML no cambian en tiempo de ejecución: se leen del disco una
 // sola vez al arrancar en lugar de en cada visita (evita I/O por request bajo carga).
 const htmlTemplateCache = {};
@@ -417,6 +426,17 @@ async function renderPageWithMeta(filename, req, res, metaOverride = {}) {
                     if (s.font_body) {
                         vars += `--sec-font-body:'${s.font_body}', sans-serif;`;
                         allUsedFonts.add(s.font_body);
+                    }
+                    // Difuminado del logo/menú mientras el header flota sobre el hero
+                    if (key === 'navbar' && (s.hero_glow_enabled !== undefined || s.hero_glow_color)) {
+                        if (s.hero_glow_enabled === '0') {
+                            vars += `--hero-glow-filter:drop-shadow(0 2px 8px rgba(0,0,0,.5));`;
+                            vars += `--hero-glow-text-shadow:0 1px 4px rgba(0,0,0,.6);`;
+                        } else {
+                            const rgb = hexToRgbParts(s.hero_glow_color);
+                            vars += `--hero-glow-filter:drop-shadow(0 0 6px rgba(${rgb},.55)) drop-shadow(0 2px 8px rgba(0,0,0,.5));`;
+                            vars += `--hero-glow-text-shadow:0 0 4px rgba(${rgb},.4), 0 1px 6px rgba(0,0,0,.45);`;
+                        }
                     }
                     if (vars) sectionCss += `${sel}{${vars}}`;
                 }
@@ -512,7 +532,22 @@ app.use((req, res, next) => {
 // secreta ADMIN_PATH) — DEBE ir antes de express.static, si no, cualquiera
 // podría ver el HTML/JS del panel sin loguearse pidiendo /admin/index.html.
 app.use('/admin', (req, res) => res.status(404).send('Not found'));
-app.use(express.static(__dirname, { index: false, maxAge: '1h' }));
+app.use(express.static(__dirname, {
+    index: false,
+    maxAge: '1h',
+    // El sitio está en desarrollo activo: JS/CSS cambian seguido. Con
+    // maxAge de 1h el navegador (sobre todo en celular) seguía usando la
+    // copia vieja sin ni preguntarle al servidor, así que un cambio podía
+    // tardar hasta una hora en verse. "no-cache" no significa "no guardar":
+    // el navegador igual cachea el archivo, pero siempre revalida con el
+    // servidor antes de usarlo (y si no cambió, responde rapidísimo con
+    // un 304 sin reenviar el archivo entero).
+    setHeaders: (res, filePath) => {
+        if (filePath.endsWith('.js') || filePath.endsWith('.css')) {
+            res.setHeader('Cache-Control', 'no-cache');
+        }
+    }
+}));
 
 app.use(session({
     secret: process.env.SESSION_SECRET || 'nad-secret-2026-xK9mP',

@@ -18,18 +18,21 @@
     <style>
         /* Estilos específicos para la página de proyectos */
         body {
-            background-color: var(--bg-light);
+            background-color: var(--surface, #F5F6F8);
             padding-top: 80px; /* offset for header */
         }
         
         .page-header {
             background: linear-gradient(to right, var(--primary-dark), var(--primary));
-            padding: 4rem 0;
+            padding: 4rem 0 6rem;
             text-align: center;
             color: #fff;
-            margin-bottom: 3rem;
+            margin-bottom: 2.5rem;
             position: relative;
             overflow: hidden;
+            /* Corte diagonal suave al pie -eco del techo triangular del logo-
+               en vez de una franja recta que corta seco contra el gris de abajo */
+            clip-path: polygon(0 0, 100% 0, 100% 100%, 50% 92%, 0 100%);
         }
         
         .page-header h1 {
@@ -79,18 +82,23 @@
         /* Layout del proyecto extenso */
         .project-block {
             background: #fff;
-            border-radius: 16px;
+            border: 1px solid var(--border, #D6DAE1);
+            border-top: 5px solid var(--primary);
+            border-radius: 12px;
             overflow: hidden;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.05);
-            margin-bottom: 3rem;
+            box-shadow: 0 1px 2px rgba(17,17,17,.06);
+            margin-bottom: 2rem;
             display: grid;
             grid-template-columns: 1fr 1fr;
-            transition: transform 0.3s ease;
+            transition: transform 0.3s ease, box-shadow 0.3s ease, border-color 0.3s ease;
         }
-        
+
         .project-block:hover {
-            transform: translateY(-5px);
-            box-shadow: 0 15px 40px rgba(0,0,0,0.08);
+            transform: translateY(-4px);
+            box-shadow: 0 12px 28px rgba(17,17,17,.10);
+            border-left-color: var(--accent-1);
+            border-right-color: var(--accent-1);
+            border-bottom-color: var(--accent-1);
         }
         
         .project-block.reverse {
@@ -99,6 +107,7 @@
         
         .project-info {
             padding: 3rem;
+            min-width: 0;
             display: flex;
             flex-direction: column;
             justify-content: center;
@@ -106,9 +115,12 @@
         
         .project-media {
             position: relative;
+            width: 100%;
+            min-width: 0;
             height: 100%;
             min-height: 400px;
             background: #f3f4f6;
+            overflow: hidden;
         }
         
         /* Swiper de proyecto */
@@ -212,8 +224,8 @@
         /* Controles custom para el slider */
         .swiper-button-next, .swiper-button-prev {
             background: rgba(255,255,255,0.8);
-            width: 40px !important;
-            height: 40px !important;
+            width: 44px !important;
+            height: 44px !important;
             border-radius: 50%;
             color: var(--primary) !important;
             transition: all 0.2s;
@@ -256,12 +268,12 @@
             color: var(--text-muted);
             background: #fff;
             border-radius: 12px;
-            border: 1px dashed #d1d5db;
+            border: 1px dashed var(--border);
         }
-        .no-projects i {
+        .no-projects i, .no-projects svg {
             width: 48px;
             height: 48px;
-            color: #d1d5db;
+            color: var(--border);
             margin-bottom: 1rem;
         }
     </style>
@@ -278,7 +290,7 @@
                 <a href="/">Inicio</a>
                 <a href="/#servicios">Servicios</a>
                 <a href="/#nosotros">Nosotros</a>
-                <a href="/proyectos">Proyectos</a>
+                <a href="/proyectos" class="active">Proyectos</a>
                 <a href="/#contacto">Contactos</a>
             </nav>
             <div class="nav-actions">
@@ -295,7 +307,7 @@
             <a href="/" class="mobile-link">Inicio</a>
             <a href="/#servicios" class="mobile-link">Servicios</a>
             <a href="/#nosotros" class="mobile-link">Nosotros</a>
-            <a href="/proyectos" class="mobile-link">Proyectos</a>
+            <a href="/proyectos" class="mobile-link active">Proyectos</a>
             <a href="/#contacto" class="mobile-link">Contactos</a>
         </div>
     </header>
@@ -313,7 +325,6 @@
             <div class="project-filters" style="margin-top: 0;">
                 <button class="filter-btn active" onclick="filterProjectsView('todos', this)">Todos los Proyectos</button>
                 <button class="filter-btn" onclick="filterProjectsView('destacados', this)">Destacados</button>
-                <button class="filter-btn" onclick="filterProjectsView('construcciones', this)">Construcciones</button>
             </div>
             <div class="view-toggles" style="display: flex; gap: 0.5rem;">
                 <button class="view-btn active" onclick="setViewMode('list', this)" aria-label="Vista de lista" title="Vista de lista">
@@ -405,7 +416,7 @@
             </div>
 
             <div class="footer-links">
-                <h4>Navegación</h4>
+                <h3>Navegación</h3>
                 <ul>
                     <li><a href="/">Inicio</a></li>
                     <li><a href="/#servicios">Servicios</a></li>
@@ -416,7 +427,7 @@
             </div>
 
             <div class="footer-services">
-                <h4>Servicios</h4>
+                <h3>Servicios</h3>
                 <ul>
                     <li><a href="/#servicios">Estudio de Factibilidad</a></li>
                     <li><a href="/#servicios">Proyecto Integral</a></li>
@@ -427,7 +438,7 @@
             </div>
 
             <div class="footer-contact">
-                <h4>Contacto</h4>
+                <h3>Contacto</h3>
                 <ul>
                     <li><i data-lucide="map-pin"></i> <span id="cms-contact-address">Paraguay</span></li>
                     <li>
@@ -575,8 +586,8 @@
             position: absolute;
             top: 15px;
             right: 15px;
-            width: 40px;
-            height: 40px;
+            width: 44px;
+            height: 44px;
             border-radius: 50%;
             background: rgba(0, 0, 0, 0.4);
             color: #fff;
@@ -655,7 +666,7 @@
             font-size: 0.95rem;
         }
 
-        .pm-location i { width: 16px; height: 16px; }
+        .pm-location i, .pm-location svg { width: 16px; height: 16px; }
 
         .pm-description {
             font-size: 1.05rem;
@@ -744,14 +755,25 @@
             position: absolute;
             top: 20px;
             right: 20px;
-            background: none;
+            width: 44px;
+            height: 44px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: rgba(0, 0, 0, 0.4);
+            border-radius: 50%;
             border: none;
             color: #fff;
             cursor: pointer;
         }
-        .lightbox-close i { width: 32px; height: 32px; }
+        .lightbox-close i, .lightbox-close svg { width: 26px; height: 26px; }
 
         @media (max-width: 768px) {
+            /* El offset de 80px es para la barra de escritorio. En móvil la
+               barra se achicó (~70px), y ese offset fijo dejaba un hueco
+               blanco entre la barra y la franja roja de abajo. */
+            body { padding-top: 70px; }
+
             .project-modal-overlay { padding: 0.5rem; }
             .project-modal-container { max-height: 95vh; border-radius: 12px; }
             .project-modal-header { height: 250px; padding: 1.5rem; }
@@ -770,6 +792,59 @@
 
             .project-title { font-size: 1.6rem; }
             .project-info { padding: 1.5rem; }
+
+            /* Bug: en móvil "cuadrícula" solo ensanchaba una columna porque
+               minmax(320px,1fr) no dejaba entrar una segunda. Forzamos 2
+               columnas compactas de verdad. */
+            #projects-container.view-mode-grid {
+                grid-template-columns: repeat(2, 1fr);
+                gap: 0.75rem;
+            }
+            #projects-container.view-mode-grid .project-media {
+                height: 110px;
+                min-height: 110px;
+            }
+            /* Con la tarjeta tan angosta (2 columnas), las flechas de 44px
+               del swiper casi se tocan entre sí y tapan la foto. El deslizado
+               táctil sigue funcionando sin ellas; dejamos solo los puntitos,
+               más chicos. */
+            #projects-container.view-mode-grid .swiper-button-next,
+            #projects-container.view-mode-grid .swiper-button-prev {
+                display: none;
+            }
+            #projects-container.view-mode-grid .swiper-pagination-bullet {
+                width: 5px;
+                height: 5px;
+            }
+            #projects-container.view-mode-grid .project-info {
+                padding: 0.75rem;
+            }
+            #projects-container.view-mode-grid .project-meta {
+                gap: 0.35rem;
+                margin-bottom: 0.4rem;
+            }
+            #projects-container.view-mode-grid .meta-badge {
+                font-size: 0.68rem;
+                padding: 0.2rem 0.45rem;
+            }
+            #projects-container.view-mode-grid .meta-badge span {
+                display: none;
+            }
+            #projects-container.view-mode-grid .project-title {
+                font-size: 0.88rem;
+                line-height: 1.25;
+                margin-bottom: 0.3rem;
+            }
+            #projects-container.view-mode-grid .project-desc {
+                display: none;
+            }
+            #projects-container.view-mode-grid .btn {
+                padding: 0.45rem 0.7rem;
+                font-size: 0.75rem;
+            }
+            #projects-container.view-mode-grid .btn span {
+                display: none;
+            }
         }
     </style>
 </body>

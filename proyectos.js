@@ -5,12 +5,26 @@ document.addEventListener('DOMContentLoaded', () => {
     loadSiteContent();
     loadAndRenderProjects();
     
-    // Header Scroll effect
+    // Esta página no tiene foto de hero: el header arranca sólido (clase
+    // "scrolled" fija en el HTML) y debe quedarse así siempre. A diferencia
+    // del home, acá no hay que sacarle la clase al volver arriba del todo.
+
+    // En móvil el header ocupa mucho lugar: se esconde al bajar y reaparece
+    // al subir, pero recién después de pasar HIDE_THRESHOLD.
+    const header = document.querySelector('header');
+    let lastScrollY = window.scrollY;
+    const HIDE_THRESHOLD = 160;
+
     window.addEventListener('scroll', () => {
-        const header = document.getElementById('header');
-        if (header) {
-            header.classList.toggle('scrolled', window.scrollY > 50);
+        const scrollTop = window.scrollY;
+        if (header && window.innerWidth <= 768) {
+            if (scrollTop > lastScrollY && scrollTop > HIDE_THRESHOLD) {
+                header.classList.add('header-hidden');
+            } else if (scrollTop < lastScrollY) {
+                header.classList.remove('header-hidden');
+            }
         }
+        lastScrollY = scrollTop;
     });
 
     const mobileMenuBtn = document.getElementById('mobile-menu-btn');
@@ -140,15 +154,12 @@ function renderProjectsList(filterType) {
     let filtered = loadedProjects;
     if (filterType === 'destacados') {
         filtered = loadedProjects.filter(p => p.featured === 1);
-    } else if (filterType === 'construcciones') {
-        filtered = loadedProjects.filter(p => (p.category || '').toLowerCase().includes('construcción') || (p.category || '').toLowerCase().includes('construccion'));
     }
 
     if (filtered.length === 0) {
         let msg = 'No se encontraron proyectos en esta categoría por el momento. Te invitamos a revisar más adelante.';
         if (filterType === 'destacados') msg = 'No hay proyectos marcados como destacados en este momento.';
-        if (filterType === 'construcciones') msg = 'No hay obras de construcción actualmente.';
-        
+
         container.innerHTML = `
             <div class="no-projects fade-up visible">
                 <i data-lucide="folder-search"></i>
@@ -166,22 +177,20 @@ function renderProjectsList(filterType) {
             const isReverse = idx % 2 !== 0 ? 'reverse' : '';
             
             // Procesar media (portada + extras)
-            let allMedia = [p.image];
-            try {
-                if (p.extra_media && p.extra_media.length > 2) {
-                    const extra = JSON.parse(p.extra_media);
-                    allMedia = allMedia.concat(extra);
-                }
-            } catch(e) {}
+            const allMedia = getProjectMedia(p);
 
-            // Generar Slides
+            // Generar Slides. Se probó diferir la carga con "lazy" para no
+            // retrasar el LCP, pero dentro de este carrusel (posicionado con
+            // absolute/relative dentro de un grid) daba fotos que no
+            // terminaban de aparecer. Se carga todo directo: son pocas fotos
+            // por proyecto, y que se vean bien pesa más que ese ahorro.
             let slidesHtml = '';
-            allMedia.forEach(url => {
+            allMedia.forEach((url) => {
                 const isVideo = /\.(mp4|webm|mov)$/i.test(url);
                 if (isVideo) {
                     slidesHtml += `<div class="swiper-slide"><video src="${escapeHtml(url)}" controls loop muted playsinline></video></div>`;
                 } else {
-                    slidesHtml += `<div class="swiper-slide"><img src="${url}" alt="${escapeHtml(p.title)}" loading="lazy"></div>`;
+                    slidesHtml += `<div class="swiper-slide"><img src="${escapeHtml(url)}" alt="${escapeHtml(p.title)}"></div>`;
                 }
             });
 
@@ -201,16 +210,16 @@ function renderProjectsList(filterType) {
                             ` : ''}
                         </div>
                     </div>
-                    <div class="project-info">
+                    <div class="project-info" onclick="openProjectModal(${p.id})" style="cursor:pointer;">
                         <div class="project-meta">
-                            <span class="meta-badge"><i data-lucide="tag" style="width:14px;height:14px;"></i> ${escapeHtml(p.category)}</span>
-                            <span class="meta-badge"><i data-lucide="map-pin" style="width:14px;height:14px;"></i> ${escapeHtml(p.location)}</span>
+                            <span class="meta-badge"><i data-lucide="tag" style="width:14px;height:14px;"></i> <span>${escapeHtml(p.category)}</span></span>
+                            <span class="meta-badge"><i data-lucide="map-pin" style="width:14px;height:14px;"></i> <span>${escapeHtml(p.location)}</span></span>
                         </div>
                         <h2 class="project-title">${escapeHtml(p.title)}</h2>
                         <p class="project-desc" style="display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; overflow: hidden;">${escapeHtml(p.description)}</p>
-                        
-                        <button onclick="openProjectModal(${p.id})" class="btn btn-primary" style="align-self:flex-start;">
-                            <i data-lucide="layout-grid"></i> Ver proyecto completo
+
+                        <button type="button" class="btn btn-primary" style="align-self:flex-start;">
+                            <i data-lucide="layout-grid"></i> <span>Ver proyecto completo</span>
                         </button>
                     </div>
                 </div>
@@ -227,8 +236,26 @@ function renderProjectsList(filterType) {
                     const swiperEl = document.getElementById(`swiper-proj-${p.id}`);
                     const firstSlide = swiperEl?.querySelector('.swiper-slide');
                     if (swiperEl && firstSlide && firstSlide.nextElementSibling && typeof Swiper !== 'undefined') {
+                        // loop:true duplica slides al vuelo para simular el ciclo infinito;
+                        // combinado con contenido armado dinámicamente + autoplay, esa
+                        // duplicación quedaba mal calculada (slide equivocado, solo se podía
+                        // avanzar para un lado, "flasheaba" la foto correcta y después se
+                        // veía otra). Sin loop, la navegación es simple: primera↔última foto,
+                        // sin clones, sin ese desfasaje.
+                        //
+                        // OJO: acá había "observer/observeParents" + varios update() a
+                        // destiempo para forzar el recálculo de tamaño. En este carrusel
+                        // (dentro de un grid, con object-fit:cover) eso entraba en una
+                        // realimentación: cada recálculo agrandaba un poco la medida, el
+                        // observer detectaba el cambio y volvía a recalcular sobre el valor
+                        // ya agrandado, hasta terminar en un ancho de slide de millones de
+                        // píxeles (confirmado inspeccionando el DOM: swiper-slide con
+                        // width:3.35544e+07px) — de ahí el color sólido, la imagen que
+                        // "flasheaba" y desaparecía, y la navegación rota. Con una sola
+                        // medición al crear el swiper (sin observer, sin update() extra)
+                        // no hay bucle posible.
                         new Swiper(swiperEl, {
-                            loop: true,
+                            loop: false,
                             pagination: {
                                 el: swiperEl.querySelector('.swiper-pagination'),
                                 clickable: true
@@ -246,6 +273,24 @@ function renderProjectsList(filterType) {
                 });
             });
         }, 50);
+}
+
+// Junta la portada + medios extra de un proyecto en un solo array, sin
+// duplicados. Antes esto estaba copiado dos veces (acá y en el modal) con
+// un chequeo frágil (`extra_media.length > 2`, que asume que extra_media
+// siempre es el string JSON "[]" cuando está vacío); ahora valida el array
+// ya parseado, así funciona igual si extra_media llega como string o array.
+function getProjectMedia(p) {
+    let allMedia = [p.image];
+    try {
+        if (p.extra_media) {
+            const extra = typeof p.extra_media === 'string' ? JSON.parse(p.extra_media) : p.extra_media;
+            if (Array.isArray(extra) && extra.length > 0) {
+                allMedia = allMedia.concat(extra);
+            }
+        }
+    } catch (e) {}
+    return [...new Set(allMedia)];
 }
 
 function escapeHtml(str) {
@@ -294,16 +339,7 @@ function openProjectModal(id) {
     const gallerySection = document.getElementById('pm-gallery-section');
     galleryGrid.innerHTML = '';
     
-    let allMedia = [p.image];
-    try {
-        if (p.extra_media && p.extra_media.length > 2) {
-            const extra = JSON.parse(p.extra_media);
-            allMedia = allMedia.concat(extra);
-        }
-    } catch(e) {}
-
-    // Remover duplicados por si acaso
-    allMedia = [...new Set(allMedia)];
+    const allMedia = getProjectMedia(p);
 
     if (allMedia.length > 1) {
         gallerySection.style.display = 'block';

@@ -3,10 +3,11 @@
 /**
  * Production security guard loaded before server.js.
  *
- * The legacy server currently contains development fallbacks for the session
- * secret and the initial administrator password. Until those fallbacks are
- * removed from server.js, this bootstrap prevents a production/Railway deploy
- * from ever starting with missing or known-weak values.
+ * SESSION_SECRET is required on every production start because it signs active
+ * sessions. ADMIN_DEFAULT_PASS is different: it is only needed when the
+ * database has no administrator yet. server.js handles that one-time bootstrap
+ * case, so an already initialized deployment can restart without keeping the
+ * initial password in the environment forever.
  */
 
 const isRailway = Boolean(
@@ -17,17 +18,12 @@ const isRailway = Boolean(
 const isProduction = process.env.NODE_ENV === 'production' || isRailway;
 
 if (!isProduction) {
-    // Development keeps the existing local setup for now.
     return;
 }
 
-const missing = [];
-if (!process.env.SESSION_SECRET) missing.push('SESSION_SECRET');
-if (!process.env.ADMIN_DEFAULT_PASS) missing.push('ADMIN_DEFAULT_PASS');
-
-if (missing.length) {
-    console.error(`\n❌ Configuración de seguridad incompleta: faltan ${missing.join(', ')}.`);
-    console.error('El servidor no arrancará en producción hasta configurar estas variables.\n');
+if (!process.env.SESSION_SECRET) {
+    console.error('\n❌ Configuración de seguridad incompleta: falta SESSION_SECRET.');
+    console.error('El servidor no arrancará en producción hasta configurar esta variable.\n');
     process.exit(1);
 }
 
@@ -55,7 +51,9 @@ if (sessionSecret.length < 32 || knownWeakSessionSecrets.has(sessionSecret)) {
     process.exit(1);
 }
 
-if (adminPassword.length < 12 || knownWeakAdminPasswords.has(adminPassword.toLowerCase())) {
+// If supplied for first-time bootstrap, validate it. It is intentionally not
+// mandatory on every restart; server.js only needs it when no admin exists.
+if (adminPassword && (adminPassword.length < 12 || knownWeakAdminPasswords.has(adminPassword.toLowerCase()))) {
     console.error('\n❌ ADMIN_DEFAULT_PASS es demasiado corto o usa un valor conocido/inseguro.');
     console.error('Usá una contraseña inicial única de al menos 12 caracteres.\n');
     process.exit(1);

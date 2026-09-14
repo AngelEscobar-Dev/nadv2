@@ -34,11 +34,22 @@ jobs:
       - name: Validate whitespace
         run: git diff --check
 
-      - name: Validate accessibility markers
+      - name: Validate frontend safety and accessibility markers
         run: |
           grep -F "mobileMenuBtn.setAttribute('aria-expanded'" script.js
           grep -F 'project-info project-info-link' proyectos.js
           grep -F 'prefers-reduced-motion: reduce' styles.css
+          grep -F 'safeAdminMediaUrl(p.image)' admin/index.html
+          grep -F 'escapeAdminHtml(p.title)' admin/index.html
+          grep -F 'escapeAdminHtml(p.category)' admin/index.html
+
+      - name: Validate production secret guard
+        run: |
+          if env -u SESSION_SECRET NODE_ENV=production ADMIN_DEFAULT_PASS='ci-only-admin-password-2026' node -r ./security-bootstrap.js -e "process.exit(0)"; then
+            echo 'Expected production startup to fail without SESSION_SECRET'
+            exit 1
+          fi
+          NODE_ENV=production SESSION_SECRET='ci-session-secret-0123456789-abcdefghijklmnopqrstuvwxyz' node -r ./security-bootstrap.js -e "process.exit(0)"
 
       - name: Start application
         env:

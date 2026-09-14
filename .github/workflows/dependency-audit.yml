@@ -26,8 +26,9 @@ jobs:
       - name: Install dependencies
         run: npm ci
 
-      - name: Production dependency audit
-        run: npm audit --omit=dev --json || true
+      - name: Block high/critical production vulnerabilities
+        run: npm audit --omit=dev --audit-level=high
 
-      - name: Full dependency audit
-        run: npm audit --json || true
+      - name: Full dependency audit (informational)
+        continue-on-error: true
+        run: npm audit

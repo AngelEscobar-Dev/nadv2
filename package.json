@@ -4,9 +4,9 @@
   "description": "Sitio web NAD Constructora con panel de administración",
   "main": "server.js",
   "scripts": {
-    "start": "node scripts/patch-server-security.js && node -r ./security-bootstrap.js server.js",
+    "start": "node scripts/patch-server-security.js && node scripts/patch-password-policy.js && node scripts/patch-admin-security.js && node -r ./security-bootstrap.js server.js",
     "dev": "nodemon server.js",
-    "check": "node --check server.js && node --check security-bootstrap.js && node --check lib/security-config.js && node --check lib/sqlite-session-store.js && node --check scripts/patch-server-security.js"
+    "check": "node --check server.js && node --check security-bootstrap.js && node --check lib/security-config.js && node --check lib/sqlite-session-store.js && node --check scripts/patch-server-security.js && node --check scripts/patch-password-policy.js && node --check scripts/patch-admin-security.js"
   },
   "dependencies": {
     "bcryptjs": "^2.4.3",

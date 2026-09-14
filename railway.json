@@ -4,7 +4,7 @@
     "builder": "NIXPACKS"
   },
   "deploy": {
-    "startCommand": "node scripts/patch-server-security.js && node scripts/patch-password-policy.js && node scripts/patch-admin-security.js && node -r ./security-bootstrap.js server.js",
+    "startCommand": "node scripts/patch-server-security.js && node scripts/patch-password-policy.js && node scripts/patch-admin-security.js && node scripts/patch-client-security.js && node -r ./security-bootstrap.js server.js",
     "healthcheckPath": "/health",
     "healthcheckTimeout": 100,
     "restartPolicyType": "ON_FAILURE",

@@ -472,6 +472,22 @@ function escapeHtml(value) {
         .replace(/'/g, '&#39;');
 }
 
+function upsertMetaTag(html, attribute, name, content) {
+    const safeContent = escapeHtml(content);
+    const prefix = '<meta ' + attribute + '="' + name + '" content="';
+    const lowerHtml = html.toLowerCase();
+    const start = lowerHtml.indexOf(prefix.toLowerCase());
+    if (start !== -1) {
+        const contentStart = start + prefix.length;
+        const contentEnd = html.indexOf('"', contentStart);
+        if (contentEnd !== -1) {
+            return html.slice(0, contentStart) + safeContent + html.slice(contentEnd);
+        }
+    }
+    const tag = prefix + safeContent + '">';
+    return html.replace('</head>', '    ' + tag + '\n</head>');
+}
+
 // ── Caché en memoria ─────────────────────────────────────────────────────────
 // Convierte un hex (#RRGGBB) a "r, g, b" para poder armarlo en un rgba() con
 // una opacidad fija en CSS (usado en el difuminado del menú sobre el hero).
@@ -616,6 +632,26 @@ async function renderPageWithMeta(filename, req, res, metaOverride = {}) {
                 const u = meta.url.startsWith('http') ? meta.url : DOMAIN + meta.url;
                 html = html.replace(/<meta property="og:url" content="[^"]*"/i, `<meta property="og:url" content="${escapeHtml(u)}"`);
             }
+            const canonicalPath = metaOverride.url || (req.path === '/index.html' ? '/' : req.path);
+            const canonicalUrl = canonicalPath.startsWith('http') ? canonicalPath : DOMAIN + canonicalPath;
+            const socialImage = meta.image && meta.image.startsWith('http') ? meta.image : DOMAIN + (meta.image || '/nad.png');
+
+            html = upsertMetaTag(html, 'property', 'og:title', meta.title);
+            html = upsertMetaTag(html, 'property', 'og:description', meta.desc);
+            html = upsertMetaTag(html, 'property', 'og:image', socialImage);
+            html = upsertMetaTag(html, 'property', 'og:url', canonicalUrl);
+            html = upsertMetaTag(html, 'name', 'twitter:card', 'summary_large_image');
+            html = upsertMetaTag(html, 'name', 'twitter:title', meta.title);
+            html = upsertMetaTag(html, 'name', 'twitter:description', meta.desc);
+            html = upsertMetaTag(html, 'name', 'twitter:image', socialImage);
+
+            const canonicalTag = '<link rel="canonical" href="' + escapeHtml(canonicalUrl) + '">';
+            if (/<link\s+rel=["']canonical["'][^>]*>/i.test(html)) {
+                html = html.replace(/<link\s+rel=["']canonical["'][^>]*>/i, canonicalTag);
+            } else {
+                html = html.replace('</head>', '    ' + canonicalTag + '\n</head>');
+            }
+
             res.send(html);
     } catch (e) {
         console.error('Error renderizando página:', e);
@@ -625,7 +661,12 @@ async function renderPageWithMeta(filename, req, res, metaOverride = {}) {
 
 app.get('/', (req, res) => renderPageWithMeta('index.html', req, res));
 app.get('/index.html', (req, res) => res.redirect(301, '/'));
-app.get('/proyectos', (req, res) => renderPageWithMeta('proyectos.html', req, res));
+app.get('/proyectos', (req, res) => renderPageWithMeta('proyectos.html', req, res, {
+    title: 'Proyectos | NAD Constructora',
+    desc: 'Conocé proyectos de arquitectura, diseño estructural y construcción desarrollados por NAD Constructora en Paraguay.',
+    image: '/nad.png',
+    url: '/proyectos'
+}));
 app.get('/proyectos.html', (req, res) => res.redirect(301, '/proyectos'));
 
 function safePublicMediaUrl(value) {

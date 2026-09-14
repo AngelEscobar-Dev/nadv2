@@ -4,10 +4,10 @@
   "description": "Sitio web NAD Constructora con panel de administración",
   "main": "server.js",
   "scripts": {
-    "harden": "node scripts/patch-server-security-v2.js && node scripts/patch-upload-signatures.js && node scripts/patch-project-page.js && node scripts/patch-static-security.js && node scripts/patch-csp-security.js && node scripts/patch-password-policy.js && node scripts/patch-admin-security.js && node scripts/patch-client-security.js",
+    "harden": "node scripts/patch-server-security-v2.js && node scripts/patch-upload-signatures.js && node scripts/patch-project-page.js && node scripts/patch-static-security.js && node scripts/patch-csp-security.js && node scripts/patch-seo-pages.js && node scripts/patch-password-policy.js && node scripts/patch-admin-security.js && node scripts/patch-client-security.js",
     "start": "npm run harden && node -r ./security-bootstrap.js server.js",
     "dev": "npm run harden && nodemon server.js",
-    "check": "node --check server.js && node --check security-bootstrap.js && node --check lib/security-config.js && node --check lib/sqlite-session-store.js && node --check scripts/patch-server-security-v2.js && node --check scripts/patch-upload-signatures.js && node --check scripts/patch-project-page.js && node --check scripts/patch-static-security.js && node --check scripts/patch-csp-security.js && node --check scripts/patch-password-policy.js && node --check scripts/patch-admin-security.js && node --check scripts/patch-client-security.js"
+    "check": "node --check server.js && node --check security-bootstrap.js && node --check lib/security-config.js && node --check lib/sqlite-session-store.js && node --check scripts/patch-server-security-v2.js && node --check scripts/patch-upload-signatures.js && node --check scripts/patch-project-page.js && node --check scripts/patch-static-security.js && node --check scripts/patch-csp-security.js && node --check scripts/patch-seo-pages.js && node --check scripts/patch-password-policy.js && node --check scripts/patch-admin-security.js && node --check scripts/patch-client-security.js"
   },
   "dependencies": {
     "bcryptjs": "^2.4.3",

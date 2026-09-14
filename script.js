@@ -70,6 +70,50 @@ document.addEventListener('DOMContentLoaded', () => {
             .replace(/'/g, '&#039;');
     }
 
+    function sanitizeCmsHtml(html) {
+        const template = document.createElement('template');
+        template.innerHTML = String(html == null ? '' : html);
+        const allowedTags = new Set(['SPAN', 'BR', 'STRONG', 'EM', 'B', 'I']);
+
+        Array.from(template.content.querySelectorAll('*')).forEach(el => {
+            if (!allowedTags.has(el.tagName)) {
+                el.replaceWith(document.createTextNode(el.textContent || ''));
+                return;
+            }
+
+            Array.from(el.attributes).forEach(attr => {
+                const allowedGradientClass = el.tagName === 'SPAN' &&
+                    attr.name === 'class' &&
+                    attr.value.split(/\s+/).filter(Boolean).every(c => c === 'text-gradient');
+                if (!allowedGradientClass) el.removeAttribute(attr.name);
+            });
+        });
+
+        return template.innerHTML;
+    }
+
+    function safeHttpUrl(value) {
+        if (!value) return null;
+        try {
+            const url = new URL(String(value), window.location.origin);
+            if (url.protocol !== 'http:' && url.protocol !== 'https:') return null;
+            return url.href;
+        } catch (e) {
+            return null;
+        }
+    }
+
+    function safeMediaUrl(value) {
+        if (!value) return null;
+        try {
+            const url = new URL(String(value), window.location.origin);
+            if (url.protocol !== 'http:' && url.protocol !== 'https:') return null;
+            return url.href;
+        } catch (e) {
+            return null;
+        }
+    }
+
     // ── Header, Scroll Progress & Parallax ──────────────────────────────────
     // En móvil el header ocupa mucho lugar: se esconde al bajar y reaparece
     // al subir, pero recién después de pasar HIDE_THRESHOLD (no desaparece
@@ -375,7 +419,7 @@ document.addEventListener('DOMContentLoaded', () => {
                             if (child !== cmsHeroBg) child.remove();
                         });
                         
-                        images.hero_slider.forEach((imgSrc) => {
+                        images.hero_slider.map(safeMediaUrl).filter(Boolean).forEach((imgSrc) => {
                             const slide = document.createElement('div');
                             slide.className = 'hero-bg slide';
                             slide.style.backgroundImage = `url('${imgSrc}')`;
@@ -439,7 +483,7 @@ document.addEventListener('DOMContentLoaded', () => {
                         // Título personalizable
                         if (clientsTitle && cc.title !== undefined) clientsTitle.textContent = cc.title || 'Nuestros Clientes';
                         
-                        let logosToRender = images.clients_logos;
+                        let logosToRender = images.clients_logos.map(safeMediaUrl).filter(Boolean);
                         // Multiplicar logos si son muy pocos para que cubran toda la pantalla
                         if (logosToRender.length > 0) {
                             while (logosToRender.length < 12) {
@@ -475,7 +519,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
                 const setHtml = (id, html) => {
                     const el = document.getElementById(id);
-                    if (el && html !== undefined) el.innerHTML = html;
+                    if (el && html !== undefined) el.innerHTML = sanitizeCmsHtml(html);
                 };
                 const setText = (id, txt) => {
                     const el = document.getElementById(id);
@@ -557,16 +601,20 @@ document.addEventListener('DOMContentLoaded', () => {
                 if (texts.contact_wsp_link) {
                     ['btn-wsp-header', 'cms-hero-btn-contact-link', 'cms-cta-btn-wsp-link', 'cms-footer-wsp-link', 'cms-wsp-float', 'cms-contact-phone-link'].forEach(id => {
                         const el = document.getElementById(id);
-                        if (el) el.href = texts.contact_wsp_link;
+                        if (el) {
+                            const safeUrl = safeHttpUrl(texts.contact_wsp_link);
+                            if (safeUrl) el.href = safeUrl;
+                        }
                     });
                 }
                 if (texts.contact_instagram) {
-                    const igUrl = texts.contact_instagram.startsWith('http') 
-                        ? texts.contact_instagram 
+                    const igCandidate = texts.contact_instagram.startsWith('http')
+                        ? texts.contact_instagram
                         : `https://www.instagram.com/${texts.contact_instagram.replace('@', '')}/`;
+                    const igUrl = safeHttpUrl(igCandidate);
                     ['cms-cta-btn-ig-link', 'cms-footer-ig-link', 'cms-contact-ig-link'].forEach(id => {
                         const el = document.getElementById(id);
-                        if (el) el.href = igUrl;
+                        if (el && igUrl) el.href = igUrl;
                     });
                 }
                 if (texts.contact_email) {
@@ -582,6 +630,7 @@ document.addEventListener('DOMContentLoaded', () => {
             if (content.video && content.video.src && videoUrls.length === 0) {
                 videoUrls = [content.video.src];
             }
+            videoUrls = videoUrls.map(safeMediaUrl).filter(Boolean);
 
             const videoSec = document.getElementById('video-institucional');
             if (videoSec) {

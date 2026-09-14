@@ -1,0 +1,51 @@
+name: Apply security hardening
+
+on:
+  push:
+    branches:
+      - audit/security-hardening
+    paths:
+      - scripts/patch-server-security.js
+      - lib/security-config.js
+      - lib/sqlite-session-store.js
+      - .github/workflows/apply-security-hardening.yml
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  patch-server:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout branch
+        uses: actions/checkout@v4
+        with:
+          ref: audit/security-hardening
+
+      - name: Apply idempotent security migration
+        run: node scripts/patch-server-security.js
+
+      - name: Validate JavaScript syntax
+        run: |
+          node --check server.js
+          node --check security-bootstrap.js
+          node --check lib/security-config.js
+          node --check lib/sqlite-session-store.js
+          node --check scripts/patch-server-security.js
+
+      - name: Validate diff whitespace
+        run: git diff --check
+
+      - name: Commit migrated server
+        shell: bash
+        run: |
+          if git diff --quiet; then
+            echo "No migration changes to commit."
+            exit 0
+          fi
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add server.js
+          git commit -m "security: harden admin sessions and credentials"
+          git push origin HEAD:audit/security-hardening

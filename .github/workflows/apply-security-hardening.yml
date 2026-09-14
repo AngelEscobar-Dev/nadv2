@@ -24,8 +24,8 @@ jobs:
           node-version: 24
           cache: npm
 
-      - name: Install dependencies
-        run: npm ci
+      - name: Upgrade SQLite dependency
+        run: npm install sqlite3@6.0.1 --save
 
       - name: Apply migrations
         run: npm run harden
@@ -85,15 +85,15 @@ jobs:
           if [ -f /tmp/nad-server.pid ]; then kill "$(cat /tmp/nad-server.pid)" 2>/dev/null || true; fi
           if [ -f /tmp/nad-server.log ]; then cat /tmp/nad-server.log; fi
 
-      - name: Persist validated source
+      - name: Persist validated changes
         if: success() && github.event_name == 'push' && github.ref == 'refs/heads/audit/security-hardening'
         run: |
-          git add server.js script.js admin/index.html proyectos.js styles.css
+          git add package.json package-lock.json server.js script.js admin/index.html proyectos.js styles.css
           if git diff --cached --quiet; then
             echo 'Validated source already persisted.'
             exit 0
           fi
           git config user.name 'github-actions[bot]'
           git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
-          git commit -m 'chore: persist validated quality changes'
+          git commit -m 'deps: upgrade sqlite3 to 6.0.1 after validation'
           git push origin HEAD:audit/security-hardening

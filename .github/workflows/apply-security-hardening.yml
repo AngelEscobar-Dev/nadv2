@@ -8,7 +8,7 @@ on:
   workflow_dispatch:
 
 permissions:
-  contents: read
+  contents: write
 
 jobs:
   validate:
@@ -18,10 +18,10 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
-      - name: Use Node.js 20
+      - name: Use Node.js 24
         uses: actions/setup-node@v4
         with:
-          node-version: 20
+          node-version: 24
           cache: npm
 
       - name: Install dependencies
@@ -45,6 +45,7 @@ jobs:
           ADMIN_PATH: ci-admin-panel
           DATA_DIR: /tmp/nad-ci-data
         run: |
+          rm -rf /tmp/nad-ci-data
           node -r ./security-bootstrap.js server.js > /tmp/nad-server.log 2>&1 &
           echo $! > /tmp/nad-server.pid
           for i in {1..30}; do
@@ -56,12 +57,42 @@ jobs:
           cat /tmp/nad-server.log
           exit 1
 
-      - name: Smoke test public endpoints
+      - name: Smoke test public and SEO endpoints
         run: |
           curl --fail --silent http://127.0.0.1:3000/health | grep '"status":"ok"'
           test "$(curl --silent --output /dev/null --write-out '%{http_code}' http://127.0.0.1:3000/)" = "200"
           test "$(curl --silent --output /dev/null --write-out '%{http_code}' http://127.0.0.1:3000/proyectos)" = "200"
+          test "$(curl --silent --output /dev/null --write-out '%{http_code}' http://127.0.0.1:3000/proyecto/1)" = "200"
+          curl --fail --silent http://127.0.0.1:3000/proyecto/1 | grep -F '<h1>Edificio Comercial</h1>'
+          curl --fail --silent http://127.0.0.1:3000/proyecto/1 | grep -F '<link rel="canonical" href="http://127.0.0.1:3000/proyecto/1">'
           test "$(curl --silent --output /dev/null --write-out '%{http_code}' http://127.0.0.1:3000/proyecto/99999999)" = "404"
+
+      - name: Verify internal files are not public
+        run: |
+          for path in /security-bootstrap.js /project.html /lib/security-config.js /lib/sqlite-session-store.js /scripts/patch-server-security-v2.js /.github/workflows/apply-security-hardening.yml; do
+            code="$(curl --silent --output /dev/null --write-out '%{http_code}' "http://127.0.0.1:3000${path}")"
+            test "$code" = "404"
+          done
+
+      - name: Verify session auth and CSRF defenses
+        run: |
+          ORIGIN='http://127.0.0.1:3000'
+          LOGIN='http://127.0.0.1:3000/ci-admin-panel/login'
+          API='http://127.0.0.1:3000/ci-admin-panel/api'
+
+          test "$(curl --silent --output /dev/null --write-out '%{http_code}' -X POST -d 'username=admin&password=ci-only-admin-password-2026' "$LOGIN")" = "403"
+
+          code="$(curl --silent --output /dev/null --write-out '%{http_code}' -c /tmp/nad-cookie -H "Origin: $ORIGIN" -X POST -d 'username=admin&password=ci-only-admin-password-2026' "$LOGIN")"
+          test "$code" = "302"
+
+          test "$(curl --silent --output /dev/null --write-out '%{http_code}' -b /tmp/nad-cookie http://127.0.0.1:3000/ci-admin-panel)" = "200"
+
+          test "$(curl --silent --output /dev/null --write-out '%{http_code}' -b /tmp/nad-cookie -H 'Origin: https://evil.example' -H 'Content-Type: application/json' -X POST -d '{"url":"/uploads/nope.jpg"}' "$API/delete-asset")" = "403"
+
+          printf 'this is not a jpeg' > /tmp/fake.jpg
+          test "$(curl --silent --output /dev/null --write-out '%{http_code}' -b /tmp/nad-cookie -H "Origin: $ORIGIN" -X POST -F 'asset=@/tmp/fake.jpg;type=image/jpeg' "$API/upload-asset")" = "400"
+
+          test "$(curl --silent --output /dev/null --write-out '%{http_code}' -b /tmp/nad-cookie -H "Origin: $ORIGIN" -X POST http://127.0.0.1:3000/ci-admin-panel/logout)" = "204"
 
       - name: Verify security headers
         run: |
@@ -79,3 +110,16 @@ jobs:
           if [ -f /tmp/nad-server.log ]; then
             cat /tmp/nad-server.log
           fi
+
+      - name: Persist hardened source on audit branch
+        if: success() && github.event_name == 'push' && github.ref == 'refs/heads/audit/security-hardening'
+        run: |
+          git add server.js script.js admin/index.html
+          if git diff --cached --quiet; then
+            echo 'Hardened source already persisted.'
+            exit 0
+          fi
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git commit -m 'security: persist validated hardening changes'
+          git push origin HEAD:audit/security-hardening

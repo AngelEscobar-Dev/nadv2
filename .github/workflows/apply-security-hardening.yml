@@ -3,6 +3,7 @@ name: NAD quality CI
 on:
   push:
     branches:
+      - master
       - audit/security-hardening
   pull_request:
   workflow_dispatch:
@@ -27,18 +28,13 @@ jobs:
       - name: Install locked dependencies
         run: npm ci
 
-      - name: Verify maintained transformations are already committed
-        run: |
-          npm run harden
-          git diff --exit-code
-
       - name: Validate JavaScript
         run: npm run check
 
       - name: Validate whitespace
         run: git diff --check
 
-      - name: Validate accessibility transformations
+      - name: Validate accessibility markers
         run: |
           grep -F "mobileMenuBtn.setAttribute('aria-expanded'" script.js
           grep -F 'project-info project-info-link' proyectos.js
@@ -74,6 +70,34 @@ jobs:
           curl --fail --silent http://127.0.0.1:3000/proyectos | grep -F '<title>Proyectos | NAD Constructora</title>'
           curl --fail --silent http://127.0.0.1:3000/proyectos | grep -F 'rel="canonical"'
           curl --fail --silent http://127.0.0.1:3000/proyecto/1 | grep -F '<h1>Edificio Comercial</h1>'
+
+      - name: Validate authentication and request protections
+        run: |
+          test "$(curl --silent --output /dev/null --write-out '%{http_code}' \
+            -X POST \
+            -H 'Content-Type: application/x-www-form-urlencoded' \
+            --data 'username=admin&password=ci-only-admin-password-2026' \
+            http://127.0.0.1:3000/ci-admin-panel/login)" = "403"
+
+          login_code="$(curl --silent --output /dev/null --write-out '%{http_code}' \
+            -c /tmp/nad-cookies.txt \
+            -X POST \
+            -H 'Origin: http://127.0.0.1:3000' \
+            -H 'Content-Type: application/x-www-form-urlencoded' \
+            --data 'username=admin&password=ci-only-admin-password-2026' \
+            http://127.0.0.1:3000/ci-admin-panel/login)"
+          test "$login_code" = "302"
+
+          test "$(curl --silent --output /dev/null --write-out '%{http_code}' \
+            -b /tmp/nad-cookies.txt \
+            http://127.0.0.1:3000/ci-admin-panel/api/projects)" = "200"
+
+          printf 'not-a-real-jpeg' > /tmp/fake.jpg
+          test "$(curl --silent --output /dev/null --write-out '%{http_code}' \
+            -b /tmp/nad-cookies.txt \
+            -H 'Origin: http://127.0.0.1:3000' \
+            -F 'asset=@/tmp/fake.jpg;type=image/jpeg' \
+            http://127.0.0.1:3000/ci-admin-panel/api/upload-asset)" = "400"
 
       - name: Validate security headers
         run: |

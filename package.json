@@ -5,8 +5,8 @@
   "main": "server.js",
   "scripts": {
     "harden": "node scripts/patch-seo-pages.js && node scripts/patch-accessibility.js",
-    "start": "npm run harden && node -r ./security-bootstrap.js server.js",
-    "dev": "npm run harden && nodemon server.js",
+    "start": "node -r ./security-bootstrap.js server.js",
+    "dev": "nodemon server.js",
     "check": "node --check server.js && node --check script.js && node --check proyectos.js && node --check security-bootstrap.js && node --check lib/security-config.js && node --check lib/sqlite-session-store.js && node --check scripts/patch-seo-pages.js && node --check scripts/patch-accessibility.js"
   },
   "dependencies": {
@@ -25,6 +25,6 @@
     "node": ">=18.0.0"
   },
   "allowScripts": {
-    "sqlite3@5.1.7": true
+    "sqlite3@6.0.1": true
   }
 }

@@ -7,6 +7,8 @@ const path = require('path');
 const fs = require('fs');
 const compression = require('compression');
 const helmet = require('helmet');
+const { getSessionSecret, getInitialAdminPassword, isProductionEnvironment } = require('./lib/security-config');
+const SQLiteSessionStore = require('./lib/sqlite-session-store');
 
 const app = express();
 const PORT = process.env.PORT || 3000;
@@ -244,10 +246,14 @@ db.serialize(() => {
     // Crear admin por defecto si no existe
     db.get('SELECT id FROM admin WHERE id = 1', (err, row) => {
         if (!row) {
-            const defaultPass = process.env.ADMIN_DEFAULT_PASS || 'nad2026';
-            const hashed = bcrypt.hashSync(defaultPass, 10);
+            const defaultPass = getInitialAdminPassword();
+            if (!defaultPass) {
+                console.warn('⚠️ ADMIN_DEFAULT_PASS no configurado: no se creará un administrador inicial.');
+                return;
+            }
+            const hashed = bcrypt.hashSync(defaultPass, 12);
             db.run("INSERT INTO admin (username, password) VALUES ('admin', ?)", [hashed]);
-            console.log(`✅ Admin inicial verificado (usuario: admin)`);
+            console.log('✅ Admin inicial creado (usuario: admin)');
         }
     });
 
@@ -550,15 +556,17 @@ app.use(express.static(__dirname, {
 }));
 
 app.use(session({
-    secret: process.env.SESSION_SECRET || 'nad-secret-2026-xK9mP',
+    name: 'nad.sid',
+    store: new SQLiteSessionStore(db),
+    secret: getSessionSecret(),
     resave: false,
     saveUninitialized: false,
+    rolling: true,
     cookie: {
         maxAge: 8 * 60 * 60 * 1000,
         httpOnly: true,
         sameSite: 'lax',
-        // En producción (Railway, etc.) forzar cookie segura automáticamente
-        secure: process.env.NODE_ENV === 'production' || process.env.COOKIE_SECURE === 'true'
+        secure: isProductionEnvironment() || process.env.COOKIE_SECURE === 'true'
     }
 }));
 
@@ -648,8 +656,14 @@ app.post(`/${ADMIN_PATH}/login`, async (req, res) => {
         }
 
         await resetAttempts(ip);
+        await new Promise((resolve, reject) => {
+            req.session.regenerate(err => err ? reject(err) : resolve());
+        });
         req.session.admin = { id: admin.id, username: admin.username };
-        res.redirect(`/${ADMIN_PATH}`);
+        await new Promise((resolve, reject) => {
+            req.session.save(err => err ? reject(err) : resolve());
+        });
+        return res.redirect(`/${ADMIN_PATH}`);
     } catch (e) {
         console.error(e);
         res.redirect(`/${ADMIN_PATH}/login?error=1`);

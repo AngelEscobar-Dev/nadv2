@@ -3,7 +3,9 @@ name: Dependency audit
 on:
   push:
     branches:
+      - master
       - audit/security-hardening
+  pull_request:
   workflow_dispatch:
 
 permissions:
